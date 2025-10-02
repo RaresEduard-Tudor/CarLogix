@@ -53,8 +53,16 @@ const ErrorCodesPage = ({ cars, errorCodes, onAddErrorCode, onUpdateErrorCode })
     
     setScanning(true);
     try {
-      const results = await onScanForErrors(selectedCarId);
-      setScanResults(results);
+      // MVP: Simulate scanning functionality
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate scan delay
+      
+      // Mock scan results
+      const mockResults = [
+        { code: 'P0301', description: 'Cylinder 1 Misfire Detected', severity: 'moderate' },
+        { code: 'P0171', description: 'System Too Lean (Bank 1)', severity: 'low' }
+      ];
+      
+      setScanResults(mockResults);
       setShowResults(true);
     } catch (error) {
       console.error('Scan failed:', error);
@@ -64,7 +72,9 @@ const ErrorCodesPage = ({ cars, errorCodes, onAddErrorCode, onUpdateErrorCode })
   };
 
   const handleClearError = (errorId) => {
-    onClearErrorCode(errorId);
+    // MVP: Placeholder for clear error functionality
+    alert('Clear error feature coming in MVP 2! This would mark the error as resolved.');
+    console.log('Would clear error:', errorId);
   };
 
   const filteredErrors = selectedCarId 
