@@ -42,7 +42,7 @@ import {
 import { useSettings } from '../contexts/SettingsContext';
 
 const ErrorCodesPage = ({ cars, errorCodes, onAddErrorCode, onUpdateErrorCode }) => {
-  const { formatDate } = useSettings();
+  const { formatDate, formatDistance } = useSettings();
   const [selectedCarId, setSelectedCarId] = useState('');
   const [scanning, setScanning] = useState(false);
   const [scanResults, setScanResults] = useState(null);
@@ -297,7 +297,7 @@ const ErrorCodesPage = ({ cars, errorCodes, onAddErrorCode, onUpdateErrorCode })
                         {error.mileage ? (
                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             <Speed sx={{ mr: 1, fontSize: 16 }} />
-                            {error.mileage.toLocaleString()}
+                            {formatDistance(error.mileage)}
                           </Box>
                         ) : '-'}
                       </TableCell>

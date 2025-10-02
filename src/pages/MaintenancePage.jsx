@@ -41,7 +41,7 @@ import { useSettings } from '../contexts/SettingsContext';
 import { serviceTypes } from '../data/mockData';
 
 const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onUpdateMaintenanceRecord }) => {
-  const { formatDate } = useSettings();
+  const { formatDate, formatCurrency, formatDistance } = useSettings();
   const [open, setOpen] = useState(false);
   const [selectedCarId, setSelectedCarId] = useState('');
   const [formData, setFormData] = useState({
@@ -170,7 +170,7 @@ const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onU
                       Total Records: {filteredRecords.length}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Total Spent: ${totalSpent.toFixed(2)}
+                      Total Spent: {formatCurrency(totalSpent)}
                     </Typography>
                   </Box>
                 </Grid>
@@ -239,7 +239,7 @@ const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onU
                         {record.mileage ? (
                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             <Speed sx={{ mr: 1, fontSize: 16 }} />
-                            {record.mileage.toLocaleString()}
+                            {formatDistance(record.mileage)}
                           </Box>
                         ) : '-'}
                       </TableCell>
@@ -247,7 +247,7 @@ const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onU
                         {record.cost > 0 ? (
                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             <AttachMoney sx={{ mr: 1, fontSize: 16 }} />
-                            ${record.cost.toFixed(2)}
+                            {formatCurrency(record.cost)}
                           </Box>
                         ) : '-'}
                       </TableCell>
