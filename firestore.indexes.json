@@ -9,7 +9,25 @@
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "isActive",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "maintenanceRecords",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
           "order": "DESCENDING"
         }
       ]
@@ -33,24 +51,6 @@
       ]
     },
     {
-      "collectionGroup": "maintenanceRecords",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "userId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "type",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "date",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
       "collectionGroup": "errorCodes",
       "queryScope": "COLLECTION",
       "fields": [
@@ -59,11 +59,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "severity",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "timestamp",
+          "fieldPath": "detectedAt",
           "order": "DESCENDING"
         }
       ]

@@ -19,7 +19,7 @@ import {
   AttachMoney,
   Schedule
 } from '@mui/icons-material';
-import { useSettings } from '../contexts/SettingsContext';
+import { useSettings } from '../contexts/SettingsContext_Firebase';
 
 const DashboardPage = ({ cars, maintenanceRecords, errorCodes }) => {
   const { formatCurrency, formatDistance, formatDate } = useSettings();

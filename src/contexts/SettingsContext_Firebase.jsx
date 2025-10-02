@@ -2,8 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '../services/authService';
 import { firebaseService } from '../services/firebaseService';
 
-// Create settings context
-const SettingsContext = createContext();
+// Create settings context with default value
+const SettingsContext = createContext(null);
 
 // Custom hook to use settings context
 export const useSettings = () => {
@@ -232,8 +232,8 @@ export const SettingsProvider = ({ children }) => {
     const distanceUnit = distanceUnits[unit];
     if (!distanceUnit) return `${distance} mi`;
     
-    const convertedDistance = unit === 'kilometers' ? distance * 1.60934 : distance;
-    return `${Math.round(convertedDistance).toLocaleString()} ${distanceUnit.abbr}`;
+    // Don't convert - just format with the appropriate unit
+    return `${Math.round(distance).toLocaleString()} ${distanceUnit.abbr}`;
   };
 
   const formatDate = (dateString, formatKey = settings.dateFormat) => {

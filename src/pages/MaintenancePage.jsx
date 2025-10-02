@@ -37,11 +37,11 @@ import {
   LocationOn,
   Notes
 } from '@mui/icons-material';
-import { useSettings } from '../contexts/SettingsContext';
+import { useSettings } from '../contexts/SettingsContext_Firebase';
 import { serviceTypes } from '../data/mockData';
 
 const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onUpdateMaintenanceRecord }) => {
-  const { formatDate, formatCurrency, formatDistance } = useSettings();
+  const { formatDate, formatCurrency, formatDistance, settings, distanceUnits } = useSettings();
   const [open, setOpen] = useState(false);
   const [selectedCarId, setSelectedCarId] = useState('');
   const [formData, setFormData] = useState({
@@ -345,7 +345,7 @@ const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onU
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
-                label="Mileage"
+                label={`Mileage (${distanceUnits[settings.distanceUnit]?.abbr || 'mi'})`}
                 fullWidth
                 type="number"
                 value={formData.mileage}

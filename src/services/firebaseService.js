@@ -149,13 +149,13 @@ class FirebaseService {
           collection(db, 'maintenanceRecords'),
           where('userId', '==', userId),
           where('carId', '==', carId),
-          orderBy('serviceDate', 'desc')
+          orderBy('date', 'desc')
         );
       } else {
         q = query(
           collection(db, 'maintenanceRecords'),
           where('userId', '==', userId),
-          orderBy('serviceDate', 'desc')
+          orderBy('date', 'desc')
         );
       }
       

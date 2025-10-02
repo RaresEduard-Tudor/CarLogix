@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useFirebaseCarLogix } from './hooks/useFirebaseCarLogix';
 import { ThemeContextProvider } from './contexts/ThemeContext';
-import { SettingsProvider } from './contexts/SettingsContext';
+import { SettingsProvider } from './contexts/SettingsContext_Firebase';
 import LoginPage from './pages/LoginPage';
 import DashboardLayout from './components/DashboardLayout';
 import DashboardPage from './pages/DashboardPage';

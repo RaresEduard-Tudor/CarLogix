@@ -39,7 +39,7 @@ import {
   Speed,
   Info
 } from '@mui/icons-material';
-import { useSettings } from '../contexts/SettingsContext';
+import { useSettings } from '../contexts/SettingsContext_Firebase';
 
 const ErrorCodesPage = ({ cars, errorCodes, onAddErrorCode, onUpdateErrorCode }) => {
   const { formatDate, formatDistance } = useSettings();

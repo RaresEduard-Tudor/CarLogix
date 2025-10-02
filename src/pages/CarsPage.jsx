@@ -30,10 +30,10 @@ import {
   CalendarToday,
   Speed
 } from '@mui/icons-material';
-import { useSettings } from '../contexts/SettingsContext';
+import { useSettings } from '../contexts/SettingsContext_Firebase';
 
 const CarsPage = ({ cars, onAddCar, onUpdateCar }) => {
-  const { formatDate, formatDistance } = useSettings();
+  const { formatDate, formatDistance, settings, distanceUnits } = useSettings();
   const [open, setOpen] = useState(false);
   const [editingCar, setEditingCar] = useState(null);
   const [formData, setFormData] = useState({
@@ -268,7 +268,7 @@ const CarsPage = ({ cars, onAddCar, onUpdateCar }) => {
             </Grid>
             <Grid item xs={12}>
               <TextField
-                label="Current Mileage"
+                label={`Current Mileage (${distanceUnits[settings.distanceUnit]?.abbr || 'mi'})`}
                 fullWidth
                 type="number"
                 value={formData.mileage}

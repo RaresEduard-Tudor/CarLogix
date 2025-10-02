@@ -29,7 +29,7 @@ import {
   Save,
   Info
 } from '@mui/icons-material';
-import { useSettings } from '../contexts/SettingsContext';
+import { useSettings } from '../contexts/SettingsContext_Firebase';
 import { useThemeMode } from '../contexts/ThemeContext';
 
 const SettingsPage = () => {
