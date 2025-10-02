@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { DirectionsCar } from '@mui/icons-material';
 
-const LoginPage = ({ onLogin, onRegister }) => {
+const LoginPage = React.memo(({ onLogin, onRegister }) => {
   const [tab, setTab] = useState(0);
   const [email, setEmail] = useState('test@example.com');
   const [password, setPassword] = useState('password123');
@@ -216,6 +216,6 @@ const LoginPage = ({ onLogin, onRegister }) => {
       </Box>
     </Container>
   );
-};
+});
 
 export default LoginPage;

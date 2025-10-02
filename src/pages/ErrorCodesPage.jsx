@@ -41,7 +41,7 @@ import {
 } from '@mui/icons-material';
 import { useSettings } from '../contexts/SettingsContext_Firebase';
 
-const ErrorCodesPage = ({ cars, errorCodes, onAddErrorCode, onUpdateErrorCode }) => {
+const ErrorCodesPage = React.memo(({ cars, errorCodes, onAddErrorCode, onUpdateErrorCode }) => {
   const { formatDate, formatDistance } = useSettings();
   const [selectedCarId, setSelectedCarId] = useState('');
   const [scanning, setScanning] = useState(false);
@@ -384,6 +384,6 @@ const ErrorCodesPage = ({ cars, errorCodes, onAddErrorCode, onUpdateErrorCode })
       </Dialog>
     </Box>
   );
-};
+});
 
 export default ErrorCodesPage;

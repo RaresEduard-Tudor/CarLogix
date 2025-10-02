@@ -36,7 +36,7 @@ import {
 import { useSettings } from '../contexts/SettingsContext_Firebase';
 import { getBrandNames, getModelsForBrand, carColors } from '../data/carData';
 
-const CarsPage = ({ cars, onAddCar, onUpdateCar }) => {
+const CarsPage = React.memo(({ cars, onAddCar, onUpdateCar }) => {
   const { formatDate, formatDistance, settings, distanceUnits } = useSettings();
   const [open, setOpen] = useState(false);
   const [editingCar, setEditingCar] = useState(null);
@@ -358,6 +358,6 @@ const CarsPage = ({ cars, onAddCar, onUpdateCar }) => {
       </Dialog>
     </Box>
   );
-};
+});
 
 export default CarsPage;

@@ -32,7 +32,7 @@ import {
 import { useSettings } from '../contexts/SettingsContext_Firebase';
 import { useThemeMode } from '../contexts/ThemeContext';
 
-const SettingsPage = () => {
+const SettingsPage = React.memo(() => {
   const { 
     settings, 
     updateSetting, 
@@ -314,6 +314,6 @@ const SettingsPage = () => {
       </Grid>
     </Box>
   );
-};
+});
 
 export default SettingsPage;

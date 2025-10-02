@@ -21,7 +21,7 @@ import {
 } from '@mui/icons-material';
 import { useSettings } from '../contexts/SettingsContext_Firebase';
 
-const DashboardPage = ({ cars, maintenanceRecords, errorCodes }) => {
+const DashboardPage = React.memo(({ cars, maintenanceRecords, errorCodes }) => {
   const { formatCurrency, formatDistance, formatDate } = useSettings();
   
   const totalCars = cars.length;
@@ -187,6 +187,6 @@ const DashboardPage = ({ cars, maintenanceRecords, errorCodes }) => {
       </Grid>
     </Box>
   );
-};
+});
 
 export default DashboardPage;

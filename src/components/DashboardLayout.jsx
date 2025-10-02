@@ -36,7 +36,7 @@ import { useThemeMode } from '../contexts/ThemeContext';
 
 const DRAWER_WIDTH = 240;
 
-const DashboardLayout = ({ children, currentPage, onPageChange, user, onLogout }) => {
+const DashboardLayout = React.memo(({ children, currentPage, onPageChange, user, onLogout }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const theme = useTheme();
@@ -125,9 +125,6 @@ const DashboardLayout = ({ children, currentPage, onPageChange, user, onLogout }
             {menuItems.find(item => item.id === currentPage)?.label || 'CarLogix'}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Typography variant="body2" sx={{ mr: 2, display: { xs: 'none', sm: 'block' } }}>
-              Welcome, {user?.name}
-            </Typography>
             <Tooltip title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}>
               <IconButton
                 onClick={toggleTheme}
@@ -209,17 +206,17 @@ const DashboardLayout = ({ children, currentPage, onPageChange, user, onLogout }
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: { xs: 1, sm: 2, md: 3 },
           width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
         }}
       >
         <Toolbar />
-        <Container maxWidth="lg">
+        <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2 } }}>
           {children}
         </Container>
       </Box>
     </Box>
   );
-};
+});
 
 export default DashboardLayout;

@@ -45,7 +45,7 @@ import {
 import { useSettings } from '../contexts/SettingsContext_Firebase';
 import { serviceTypes } from '../data/mockData';
 
-const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onUpdateMaintenanceRecord }) => {
+const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenanceRecord, onUpdateMaintenanceRecord }) => {
   const { formatDate, formatCurrency, formatDistance, settings, distanceUnits } = useSettings();
   const [open, setOpen] = useState(false);
   const [selectedCarId, setSelectedCarId] = useState('');
@@ -282,17 +282,17 @@ const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onU
               </CardContent>
             </Card>
           ) : (
-            <TableContainer component={Paper}>
-              <Table>
+            <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
+              <Table sx={{ minWidth: 650 }}>
                 <TableHead>
                   <TableRow>
                     <TableCell>Date</TableCell>
-                    <TableCell>Car</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Car</TableCell>
                     <TableCell>Service Type</TableCell>
-                    <TableCell>Description</TableCell>
-                    <TableCell>Mileage</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Description</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Mileage</TableCell>
                     <TableCell>Cost</TableCell>
-                    <TableCell>Location</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Location</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -304,7 +304,7 @@ const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onU
                           {formatDate(record.date)}
                         </Box>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
                         <Typography variant="body2">
                           {getCarName(record.carId)}
                         </Typography>
@@ -317,12 +317,12 @@ const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onU
                           variant="outlined"
                         />
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                         <Typography variant="body2">
                           {record.description || '-'}
                         </Typography>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
                         {record.mileage ? (
                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             <Speed sx={{ mr: 1, fontSize: 16 }} />
@@ -338,7 +338,7 @@ const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onU
                           </Box>
                         ) : '-'}
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                         {record.location ? (
                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             <LocationOn sx={{ mr: 1, fontSize: 16 }} />
@@ -537,6 +537,6 @@ const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onU
       </Dialog>
     </Box>
   );
-};
+});
 
 export default MaintenancePage;
