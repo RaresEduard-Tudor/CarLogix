@@ -224,8 +224,8 @@ export const SettingsProvider = ({ children }) => {
     const currency = currencies[currencyCode];
     if (!currency) return `$${amount.toFixed(2)}`;
     
-    const convertedAmount = amount * currency.rate;
-    return `${currency.symbol}${convertedAmount.toFixed(2)}`;
+    // Don't convert - just format with the appropriate currency symbol
+    return `${currency.symbol}${amount.toFixed(2)}`;
   };
 
   const formatDistance = (distance, unit = settings.distanceUnit) => {
