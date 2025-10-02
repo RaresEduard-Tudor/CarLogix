@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import {
-  Box,
-  Typography,
+  Grid,
   Card,
   CardContent,
+  Typography,
+  Box,
   Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
-  Grid,
   MenuItem,
   Table,
   TableBody,
@@ -22,23 +22,26 @@ import {
   Chip,
   IconButton,
   Fab,
-  Select,
   FormControl,
   InputLabel,
-  Alert
+  Select
 } from '@mui/material';
 import {
   Add,
+  Edit,
   Build,
-  AttachMoney,
-  Speed,
+  Close,
   CalendarToday,
+  Speed,
+  AttachMoney,
   LocationOn,
   Notes
 } from '@mui/icons-material';
+import { useSettings } from '../contexts/SettingsContext';
 import { serviceTypes } from '../data/mockData';
 
-const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord }) => {
+const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onUpdateMaintenanceRecord }) => {
+  const { formatDate } = useSettings();
   const [open, setOpen] = useState(false);
   const [selectedCarId, setSelectedCarId] = useState('');
   const [formData, setFormData] = useState({
@@ -211,7 +214,7 @@ const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord }) =
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                           <CalendarToday sx={{ mr: 1, fontSize: 16 }} />
-                          {new Date(record.date).toLocaleDateString()}
+                          {formatDate(record.date)}
                         </Box>
                       </TableCell>
                       <TableCell>

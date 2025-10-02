@@ -1,33 +1,39 @@
 import React, { useState } from 'react';
 import {
-  Box,
-  Typography,
+  Grid,
   Card,
   CardContent,
+  Typography,
+  Box,
   Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
-  Grid,
+  MenuItem,
   Chip,
   IconButton,
-  List,
+  Avatar,
   ListItem,
+  ListItemAvatar,
   ListItemText,
-  ListItemSecondaryAction,
+  List,
+  Paper,
   Fab
 } from '@mui/material';
 import {
   Add,
   Edit,
   DirectionsCar,
+  Close,
   CalendarToday,
   Speed
 } from '@mui/icons-material';
+import { useSettings } from '../contexts/SettingsContext';
 
 const CarsPage = ({ cars, onAddCar, onUpdateCar }) => {
+  const { formatDate, formatDistance } = useSettings();
   const [open, setOpen] = useState(false);
   const [editingCar, setEditingCar] = useState(null);
   const [formData, setFormData] = useState({
@@ -159,7 +165,7 @@ const CarsPage = ({ cars, onAddCar, onUpdateCar }) => {
                         <Speed sx={{ mr: 1, fontSize: 16 }} />
                         <ListItemText
                           primary="Mileage"
-                          secondary={`${car.mileage.toLocaleString()} miles`}
+                          secondary={formatDistance(car.mileage)}
                         />
                       </ListItem>
                     )}
@@ -175,7 +181,7 @@ const CarsPage = ({ cars, onAddCar, onUpdateCar }) => {
                       <CalendarToday sx={{ mr: 1, fontSize: 16 }} />
                       <ListItemText
                         primary="Added"
-                        secondary={new Date(car.addedDate).toLocaleDateString()}
+                        secondary={formatDate(car.addedDate)}
                       />
                     </ListItem>
                   </List>

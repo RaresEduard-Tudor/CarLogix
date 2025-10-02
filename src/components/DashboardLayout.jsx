@@ -29,7 +29,8 @@ import {
   AccountCircle,
   Logout,
   LightMode,
-  DarkMode
+  DarkMode,
+  Settings
 } from '@mui/icons-material';
 import { useThemeMode } from '../contexts/ThemeContext';
 
@@ -64,6 +65,7 @@ const DashboardLayout = ({ children, currentPage, onPageChange, user, onLogout }
     { id: 'cars', label: 'My Cars', icon: DirectionsCar },
     { id: 'maintenance', label: 'Maintenance', icon: Build },
     { id: 'errors', label: 'Error Codes', icon: Error },
+    { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   const drawer = (

@@ -39,8 +39,10 @@ import {
   Speed,
   Info
 } from '@mui/icons-material';
+import { useSettings } from '../contexts/SettingsContext';
 
-const ErrorCodesPage = ({ cars, errorCodes, onScanForErrors, onClearErrorCode }) => {
+const ErrorCodesPage = ({ cars, errorCodes, onAddErrorCode, onUpdateErrorCode }) => {
+  const { formatDate } = useSettings();
   const [selectedCarId, setSelectedCarId] = useState('');
   const [scanning, setScanning] = useState(false);
   const [scanResults, setScanResults] = useState(null);
@@ -288,7 +290,7 @@ const ErrorCodesPage = ({ cars, errorCodes, onScanForErrors, onClearErrorCode })
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                           <CalendarToday sx={{ mr: 1, fontSize: 16 }} />
-                          {new Date(error.timestamp).toLocaleDateString()}
+                          {formatDate(error.timestamp)}
                         </Box>
                       </TableCell>
                       <TableCell>

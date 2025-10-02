@@ -19,8 +19,11 @@ import {
   AttachMoney,
   Schedule
 } from '@mui/icons-material';
+import { useSettings } from '../contexts/SettingsContext';
 
 const DashboardPage = ({ cars, maintenanceRecords, errorCodes }) => {
+  const { formatCurrency, formatDistance, formatDate } = useSettings();
+  
   const totalCars = cars.length;
   const totalMaintenanceRecords = maintenanceRecords.length;
   const activeErrors = errorCodes.filter(error => error.status === 'active').length;
@@ -56,7 +59,7 @@ const DashboardPage = ({ cars, maintenanceRecords, errorCodes }) => {
     },
     {
       title: 'Total Spent',
-      value: `$${totalSpent.toFixed(2)}`,
+      value: formatCurrency(totalSpent),
       icon: AttachMoney,
       color: 'info.main'
     }
@@ -112,14 +115,14 @@ const DashboardPage = ({ cars, maintenanceRecords, errorCodes }) => {
                     <ListItemText
                       primary={record.serviceType}
                       secondary={
-                        <Box>
-                          <Typography variant="body2" color="text.secondary">
-                            {record.date} • {record.mileage?.toLocaleString()} miles
+                        <>
+                          <Typography variant="body2" color="text.secondary" component="span" display="block">
+                            {formatDate(record.date)} • {record.mileage ? formatDistance(record.mileage) : 'No mileage'}
                           </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {record.cost > 0 && `$${record.cost}`}
+                          <Typography variant="body2" color="text.secondary" component="span" display="block">
+                            {record.cost > 0 && formatCurrency(record.cost)}
                           </Typography>
-                        </Box>
+                        </>
                       }
                     />
                   </ListItem>
@@ -161,14 +164,14 @@ const DashboardPage = ({ cars, maintenanceRecords, errorCodes }) => {
                         </Box>
                       }
                       secondary={
-                        <Box>
-                          <Typography variant="body2" color="text.secondary">
+                        <>
+                          <Typography variant="body2" color="text.secondary" component="span" display="block">
                             {error.description}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {new Date(error.timestamp).toLocaleDateString()}
+                          <Typography variant="caption" color="text.secondary" component="span" display="block">
+                            {formatDate(error.timestamp)}
                           </Typography>
-                        </Box>
+                        </>
                       }
                     />
                   </ListItem>

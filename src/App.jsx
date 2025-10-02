@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useCarLogix } from './hooks/useCarLogix';
 import { ThemeContextProvider } from './contexts/ThemeContext';
+import { SettingsProvider } from './contexts/SettingsContext';
 import LoginPage from './pages/LoginPage';
 import DashboardLayout from './components/DashboardLayout';
 import DashboardPage from './pages/DashboardPage';
 import CarsPage from './pages/CarsPage';
 import MaintenancePage from './pages/MaintenancePage';
 import ErrorCodesPage from './pages/ErrorCodesPage';
+import SettingsPage from './pages/SettingsPage';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -29,7 +31,9 @@ function App() {
   if (!isLoggedIn) {
     return (
       <ThemeContextProvider>
-        <LoginPage onLogin={login} />
+        <SettingsProvider>
+          <LoginPage onLogin={login} />
+        </SettingsProvider>
       </ThemeContextProvider>
     );
   }
@@ -70,6 +74,8 @@ function App() {
             onScanForErrors={scanForErrors}
           />
         );
+      case 'settings':
+        return <SettingsPage />;
       default:
         return <DashboardPage cars={cars} maintenanceRecords={maintenanceRecords} errorCodes={errorCodes} />;
     }
@@ -77,14 +83,16 @@ function App() {
 
   return (
     <ThemeContextProvider>
-      <DashboardLayout
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-        user={user}
-        onLogout={logout}
-      >
-        {renderPageContent()}
-      </DashboardLayout>
+      <SettingsProvider>
+        <DashboardLayout
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          user={user}
+          onLogout={logout}
+        >
+          {renderPageContent()}
+        </DashboardLayout>
+      </SettingsProvider>
     </ThemeContextProvider>
   );
 }
