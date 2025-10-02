@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import {
   Grid,
   Card,
@@ -36,7 +38,9 @@ import {
   Speed,
   AttachMoney,
   LocationOn,
-  Notes
+  Notes,
+  Alarm,
+  Download
 } from '@mui/icons-material';
 import { useSettings } from '../contexts/SettingsContext_Firebase';
 import { serviceTypes } from '../data/mockData';
@@ -53,7 +57,11 @@ const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onU
     date: new Date().toISOString().split('T')[0],
     cost: '',
     location: '',
-    notes: ''
+    notes: '',
+    // Reminder settings
+    reminderMileageInterval: '',
+    reminderTimeInterval: '',
+    reminderTimeUnit: 'months' // months, years
   });
 
   const handleOpen = () => {
@@ -66,7 +74,10 @@ const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onU
       date: new Date().toISOString().split('T')[0],
       cost: '',
       location: '',
-      notes: ''
+      notes: '',
+      reminderMileageInterval: '',
+      reminderTimeInterval: '',
+      reminderTimeUnit: 'months'
     });
     setSelectedCarId(defaultCarId);
     setOpen(true);
@@ -92,7 +103,9 @@ const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onU
     const recordData = {
       ...formData,
       mileage: formData.mileage ? parseInt(formData.mileage) : undefined,
-      cost: formData.cost ? parseFloat(formData.cost) : 0
+      cost: formData.cost ? parseFloat(formData.cost) : 0,
+      reminderMileageInterval: formData.reminderMileageInterval ? parseInt(formData.reminderMileageInterval) : null,
+      reminderTimeInterval: formData.reminderTimeInterval ? parseInt(formData.reminderTimeInterval) : null
     };
 
     onAddMaintenanceRecord(recordData);
@@ -110,6 +123,70 @@ const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onU
   const getCarName = (carId) => {
     const car = cars.find(c => c.id === carId);
     return car ? `${car.brand} ${car.model} (${car.year})` : 'Unknown Car';
+  };
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    const carName = selectedCarId ? getCarName(selectedCarId) : 'All Cars';
+    
+    // Title
+    doc.setFontSize(20);
+    doc.text('CarLogix - Maintenance Records', 20, 20);
+    
+    // Car info
+    doc.setFontSize(14);
+    doc.text(`Vehicle: ${carName}`, 20, 35);
+    doc.text(`Export Date: ${new Date().toLocaleDateString()}`, 20, 45);
+    doc.text(`Total Records: ${filteredRecords.length}`, 20, 55);
+    doc.text(`Total Spent: ${formatCurrency(totalSpent)}`, 20, 65);
+    
+    // Check if autoTable is available
+    if (typeof doc.autoTable === 'function') {
+      // Table data
+      const tableColumns = ['Date', 'Service Type', 'Description', 'Mileage', 'Cost', 'Location'];
+      const tableRows = sortedRecords.map(record => [
+        formatDate(record.date),
+        record.serviceType || 'N/A',
+        record.description || 'N/A',
+        record.mileage ? formatDistance(record.mileage) : 'N/A',
+        record.cost ? formatCurrency(record.cost) : '$0.00',
+        record.location || 'N/A'
+      ]);
+      
+      // Add table
+      doc.autoTable({
+        head: [tableColumns],
+        body: tableRows,
+        startY: 75,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [41, 128, 185] },
+        alternateRowStyles: { fillColor: [245, 245, 245] }
+      });
+    } else {
+      // Fallback: Simple text-based export
+      doc.setFontSize(10);
+      let yPosition = 85;
+      
+      sortedRecords.forEach((record, index) => {
+        if (yPosition > 280) { // New page if needed
+          doc.addPage();
+          yPosition = 20;
+        }
+        
+        doc.text(`${index + 1}. ${formatDate(record.date)} - ${record.serviceType || 'N/A'}`, 20, yPosition);
+        yPosition += 10;
+        doc.text(`   Description: ${record.description || 'N/A'}`, 20, yPosition);
+        yPosition += 10;
+        doc.text(`   Mileage: ${record.mileage ? formatDistance(record.mileage) : 'N/A'} | Cost: ${record.cost ? formatCurrency(record.cost) : '$0.00'}`, 20, yPosition);
+        yPosition += 15;
+      });
+    }
+    
+    // Save the PDF
+    const fileName = selectedCarId 
+      ? `${getCarName(selectedCarId)}_Maintenance_Records.pdf`
+      : 'All_Cars_Maintenance_Records.pdf';
+    doc.save(fileName);
   };
 
   const totalSpent = filteredRecords.reduce((sum, record) => sum + (record.cost || 0), 0);
@@ -166,13 +243,22 @@ const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onU
                   </FormControl>
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                     <Typography variant="body2" color="text.secondary">
                       Total Records: {filteredRecords.length}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Total Spent: {formatCurrency(totalSpent)}
                     </Typography>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<Download />}
+                      onClick={exportToPDF}
+                      disabled={filteredRecords.length === 0}
+                    >
+                      Export PDF
+                    </Button>
                   </Box>
                 </Grid>
               </Grid>
@@ -391,6 +477,54 @@ const MaintenancePage = ({ cars, maintenanceRecords, onAddMaintenanceRecord, onU
                   startAdornment: <Notes sx={{ mr: 1, alignSelf: 'flex-start', mt: 1 }} />
                 }}
               />
+            </Grid>
+            
+            {/* Reminder Settings */}
+            <Grid item xs={12}>
+              <Typography variant="h6" sx={{ mt: 2, mb: 1, display: 'flex', alignItems: 'center' }}>
+                <Alarm sx={{ mr: 1 }} />
+                Maintenance Reminders (Optional)
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label={`Remind me every (${distanceUnits[settings.distanceUnit]?.abbr || 'mi'})`}
+                fullWidth
+                type="number"
+                value={formData.reminderMileageInterval}
+                onChange={handleChange('reminderMileageInterval')}
+                placeholder="e.g., 5000"
+                helperText="Set mileage interval for next service reminder"
+                inputProps={{ min: 0 }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Grid container spacing={1}>
+                <Grid item xs={8}>
+                  <TextField
+                    label="Remind me every"
+                    fullWidth
+                    type="number"
+                    value={formData.reminderTimeInterval}
+                    onChange={handleChange('reminderTimeInterval')}
+                    placeholder="e.g., 6"
+                    inputProps={{ min: 0 }}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <FormControl fullWidth>
+                    <InputLabel>Unit</InputLabel>
+                    <Select
+                      value={formData.reminderTimeUnit}
+                      onChange={handleChange('reminderTimeUnit')}
+                      label="Unit"
+                    >
+                      <MenuItem value="months">Months</MenuItem>
+                      <MenuItem value="years">Years</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </Grid>
             </Grid>
           </Grid>
         </DialogContent>

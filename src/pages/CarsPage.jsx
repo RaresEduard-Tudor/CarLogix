@@ -20,7 +20,10 @@ import {
   ListItemText,
   List,
   Paper,
-  Fab
+  Fab,
+  FormControl,
+  InputLabel,
+  Select
 } from '@mui/material';
 import {
   Add,
@@ -31,11 +34,13 @@ import {
   Speed
 } from '@mui/icons-material';
 import { useSettings } from '../contexts/SettingsContext_Firebase';
+import { getBrandNames, getModelsForBrand, carColors } from '../data/carData';
 
 const CarsPage = ({ cars, onAddCar, onUpdateCar }) => {
   const { formatDate, formatDistance, settings, distanceUnits } = useSettings();
   const [open, setOpen] = useState(false);
   const [editingCar, setEditingCar] = useState(null);
+  const [availableModels, setAvailableModels] = useState([]);
   const [formData, setFormData] = useState({
     brand: '',
     model: '',
@@ -56,6 +61,8 @@ const CarsPage = ({ cars, onAddCar, onUpdateCar }) => {
         mileage: car.mileage?.toString() || '',
         color: car.color || ''
       });
+      // Set available models for the car's brand
+      setAvailableModels(getModelsForBrand(car.brand));
     } else {
       setEditingCar(null);
       setFormData({
@@ -66,6 +73,7 @@ const CarsPage = ({ cars, onAddCar, onUpdateCar }) => {
         mileage: '',
         color: ''
       });
+      setAvailableModels([]);
     }
     setOpen(true);
   };
@@ -76,10 +84,21 @@ const CarsPage = ({ cars, onAddCar, onUpdateCar }) => {
   };
 
   const handleChange = (field) => (event) => {
+    const value = event.target.value;
     setFormData({
       ...formData,
-      [field]: event.target.value
+      [field]: value
     });
+    
+    // If brand changes, update available models and reset model selection
+    if (field === 'brand') {
+      setAvailableModels(getModelsForBrand(value));
+      setFormData(prev => ({
+        ...prev,
+        [field]: value,
+        model: '' // Reset model when brand changes
+      }));
+    }
   };
 
   const handleSubmit = () => {
@@ -215,24 +234,57 @@ const CarsPage = ({ cars, onAddCar, onUpdateCar }) => {
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12} sm={6}>
-              <TextField
-                label="Brand"
-                fullWidth
-                required
-                value={formData.brand}
-                onChange={handleChange('brand')}
-                placeholder="e.g., Toyota, Honda, Ford"
-              />
+              <FormControl fullWidth required>
+                <InputLabel id="brand-label">Brand</InputLabel>
+                <Select
+                  labelId="brand-label"
+                  value={formData.brand}
+                  label="Brand"
+                  onChange={handleChange('brand')}
+                  sx={{ 
+                    minHeight: '56px',
+                    '& .MuiSelect-select': {
+                      paddingRight: '100px !important'
+                    }
+                  }}
+                >
+                  <MenuItem value="">
+                    <em>Select a brand</em>
+                  </MenuItem>
+                  {getBrandNames().map((brand) => (
+                    <MenuItem key={brand} value={brand}>
+                      {brand}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                label="Model"
-                fullWidth
-                required
-                value={formData.model}
-                onChange={handleChange('model')}
-                placeholder="e.g., Camry, Civic, F-150"
-              />
+              <FormControl fullWidth required>
+                <InputLabel id="model-label">Model</InputLabel>
+                <Select
+                  labelId="model-label"
+                  value={formData.model}
+                  label="Model"
+                  onChange={handleChange('model')}
+                  disabled={!formData.brand}
+                  sx={{ 
+                    minHeight: '56px',
+                    '& .MuiSelect-select': {
+                      paddingRight: '100px !important'
+                    }
+                  }}
+                >
+                  <MenuItem value="">
+                    <em>{formData.brand ? 'Select a model' : 'Select brand first'}</em>
+                  </MenuItem>
+                  {availableModels.map((model) => (
+                    <MenuItem key={model} value={model}>
+                      {model}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -246,13 +298,30 @@ const CarsPage = ({ cars, onAddCar, onUpdateCar }) => {
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                label="Color"
-                fullWidth
-                value={formData.color}
-                onChange={handleChange('color')}
-                placeholder="e.g., Red, Blue, Silver"
-              />
+              <FormControl fullWidth>
+                <InputLabel id="color-label">Color</InputLabel>
+                <Select
+                  labelId="color-label"
+                  value={formData.color}
+                  label="Color"
+                  onChange={handleChange('color')}
+                  sx={{ 
+                    minHeight: '56px',
+                    '& .MuiSelect-select': {
+                      paddingRight: '100px !important'
+                    }
+                  }}
+                >
+                  <MenuItem value="">
+                    <em>Select a color</em>
+                  </MenuItem>
+                  {carColors.map((color) => (
+                    <MenuItem key={color} value={color}>
+                      {color}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12}>
               <TextField
