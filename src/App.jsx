@@ -12,6 +12,7 @@ const CarsPage = React.lazy(() => import('./pages/CarsPage'));
 const MaintenancePage = React.lazy(() => import('./pages/MaintenancePage'));
 const ErrorCodesPage = React.lazy(() => import('./pages/ErrorCodesPage'));
 const SettingsPage = React.lazy(() => import('./pages/SettingsPage'));
+const ProfilePage = React.lazy(() => import('./pages/ProfilePage'));
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -91,6 +92,8 @@ function App() {
               );
             case 'settings':
               return <SettingsPage />;
+            case 'profile':
+              return <ProfilePage />;
             default:
               return (
                 <DashboardPage 

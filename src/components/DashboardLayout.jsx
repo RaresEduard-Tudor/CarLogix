@@ -60,7 +60,7 @@ const DashboardLayout = React.memo(({ children, currentPage, onPageChange, user,
     onLogout();
   };
 
-  const menuItems = [
+  const mainMenuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: DashboardIcon },
     { id: 'cars', label: 'My Cars', icon: DirectionsCar },
     { id: 'maintenance', label: 'Maintenance', icon: Build },
@@ -68,8 +68,13 @@ const DashboardLayout = React.memo(({ children, currentPage, onPageChange, user,
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
+  const profileMenuItems = [
+    { id: 'profile', label: 'Profile', icon: AccountCircle },
+  ];
+
   const drawer = (
-    <div>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {/* Header */}
       <Toolbar>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <DirectionsCar sx={{ color: 'primary.main', mr: 1 }} />
@@ -79,27 +84,64 @@ const DashboardLayout = React.memo(({ children, currentPage, onPageChange, user,
         </Box>
       </Toolbar>
       <Divider />
-      <List>
-        {menuItems.map((item) => (
-          <ListItem key={item.id} disablePadding>
-            <ListItemButton
-              selected={currentPage === item.id}
-              onClick={() => {
-                onPageChange(item.id);
-                if (isMobile) {
-                  setMobileOpen(false);
-                }
-              }}
-            >
+      
+      {/* Main Navigation */}
+      <Box sx={{ flexGrow: 1 }}>
+        <List>
+          {mainMenuItems.map((item) => (
+            <ListItem key={item.id} disablePadding>
+              <ListItemButton
+                selected={currentPage === item.id}
+                onClick={() => {
+                  onPageChange(item.id);
+                  if (isMobile) {
+                    setMobileOpen(false);
+                  }
+                }}
+              >
+                <ListItemIcon>
+                  <item.icon color={currentPage === item.id ? 'primary' : 'inherit'} />
+                </ListItemIcon>
+                <ListItemText primary={item.label} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Box>
+      
+      {/* Profile Section at Bottom */}
+      <Box>
+        <Divider sx={{ mb: 1 }} />
+        <List>
+          {profileMenuItems.map((item) => (
+            <ListItem key={item.id} disablePadding>
+              <ListItemButton
+                selected={currentPage === item.id}
+                onClick={() => {
+                  onPageChange(item.id);
+                  if (isMobile) {
+                    setMobileOpen(false);
+                  }
+                }}
+              >
+                <ListItemIcon>
+                  <item.icon color={currentPage === item.id ? 'primary' : 'inherit'} />
+                </ListItemIcon>
+                <ListItemText primary={item.label} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+          <ListItem disablePadding>
+            <ListItemButton onClick={handleLogout}>
               <ListItemIcon>
-                <item.icon color={currentPage === item.id ? 'primary' : 'inherit'} />
+                <Logout color="inherit" />
               </ListItemIcon>
-              <ListItemText primary={item.label} />
+              <ListItemText primary="Logout" />
             </ListItemButton>
           </ListItem>
-        ))}
-      </List>
-    </div>
+        </List>
+      </Box>
+    </Box>
   );
 
   return (
@@ -122,7 +164,7 @@ const DashboardLayout = React.memo(({ children, currentPage, onPageChange, user,
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            {menuItems.find(item => item.id === currentPage)?.label || 'CarLogix'}
+            {[...mainMenuItems, ...profileMenuItems].find(item => item.id === currentPage)?.label || 'CarLogix'}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Tooltip title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}>
