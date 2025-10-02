@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useCarLogix } from './hooks/useCarLogix';
+import { useFirebaseCarLogix } from './hooks/useFirebaseCarLogix';
 import { ThemeContextProvider } from './contexts/ThemeContext';
 import { SettingsProvider } from './contexts/SettingsContext';
 import LoginPage from './pages/LoginPage';
@@ -18,6 +18,8 @@ function App() {
     maintenanceRecords,
     errorCodes,
     isLoggedIn,
+    authLoading,
+    register,
     login,
     logout,
     addCar,
@@ -25,14 +27,14 @@ function App() {
     addMaintenanceRecord,
     clearErrorCode,
     scanForErrors
-  } = useCarLogix();
+  } = useFirebaseCarLogix();
 
   // Show login page if not logged in
   if (!isLoggedIn) {
     return (
       <ThemeContextProvider>
         <SettingsProvider>
-          <LoginPage onLogin={login} />
+          <LoginPage onLogin={login} onRegister={register} />
         </SettingsProvider>
       </ThemeContextProvider>
     );
