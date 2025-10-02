@@ -93,7 +93,13 @@ function App() {
             case 'settings':
               return <SettingsPage />;
             case 'profile':
-              return <ProfilePage />;
+              return (
+                <ProfilePage 
+                  cars={cars}
+                  maintenanceRecords={maintenanceRecords}
+                  errorCodes={errorCodes}
+                />
+              );
             default:
               return (
                 <DashboardPage 

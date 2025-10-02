@@ -7,7 +7,6 @@ import {
   Avatar,
   Grid,
   Button,
-  TextField,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -20,18 +19,14 @@ import {
   IconButton,
   Chip,
   Paper,
-  Alert
+  Alert,
+  TextField
 } from '@mui/material';
 import {
   Person,
   Email,
   CalendarToday,
-  Edit,
-  Save,
-  Cancel,
   Security,
-  Notifications,
-  Storage,
   Help,
   Info,
   VerifiedUser,
@@ -40,10 +35,8 @@ import {
 } from '@mui/icons-material';
 import { useSettings } from '../contexts/SettingsContext_Firebase';
 
-const ProfilePage = React.memo(() => {
+const ProfilePage = React.memo(({ cars = [], maintenanceRecords = [], errorCodes = [] }) => {
   const { currentUser } = useSettings();
-  const [editMode, setEditMode] = useState(false);
-  const [displayName, setDisplayName] = useState('');
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -51,17 +44,22 @@ const ProfilePage = React.memo(() => {
     confirmPassword: ''
   });
 
-  // Initialize display name when user data is available
-  React.useEffect(() => {
-    if (currentUser?.displayName) {
-      setDisplayName(currentUser.displayName);
-    }
-  }, [currentUser]);
+  // Calculate KPIs from real data
+  const carsCount = cars.length;
+  const maintenanceCount = maintenanceRecords.length;
+  const errorCodesCount = errorCodes.length;
+  
+  // Calculate days active (days since account creation)
+  const daysActive = React.useMemo(() => {
+    if (!currentUser?.metadata?.creationTime) return 0;
+    const creationDate = new Date(currentUser.metadata.creationTime);
+    const today = new Date();
+    const diffTime = Math.abs(today - creationDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  }, [currentUser?.metadata?.creationTime]);
 
-  const handleSaveProfile = () => {
-    // TODO: Implement profile update logic
-    setEditMode(false);
-  };
+
 
   const handlePasswordChange = () => {
     // TODO: Implement password change logic
@@ -125,19 +123,9 @@ const ProfilePage = React.memo(() => {
             </Grid>
             <Grid item xs>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-                {editMode ? (
-                  <TextField
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    variant="outlined"
-                    size="small"
-                    placeholder="Display Name"
-                  />
-                ) : (
-                  <Typography variant="h4" component="h1">
-                    {currentUser.displayName || 'User'}
-                  </Typography>
-                )}
+                <Typography variant="h4" component="h1">
+                  {currentUser.displayName || 'User'}
+                </Typography>
                 {currentUser.emailVerified && (
                   <Chip
                     icon={<VerifiedUser />}
@@ -150,37 +138,6 @@ const ProfilePage = React.memo(() => {
               <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
                 {currentUser.email}
               </Typography>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                {editMode ? (
-                  <>
-                    <Button
-                      variant="contained"
-                      startIcon={<Save />}
-                      onClick={handleSaveProfile}
-                      size="small"
-                    >
-                      Save
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      startIcon={<Cancel />}
-                      onClick={() => setEditMode(false)}
-                      size="small"
-                    >
-                      Cancel
-                    </Button>
-                  </>
-                ) : (
-                  <Button
-                    variant="outlined"
-                    startIcon={<Edit />}
-                    onClick={() => setEditMode(true)}
-                    size="small"
-                  >
-                    Edit Profile
-                  </Button>
-                )}
-              </Box>
             </Grid>
           </Grid>
         </CardContent>
@@ -227,7 +184,7 @@ const ProfilePage = React.memo(() => {
                     onClick={() => setShowPasswordDialog(true)}
                     size="small"
                   >
-                    <Edit />
+                    <Security />
                   </IconButton>
                 </ListItem>
               </List>
@@ -248,7 +205,7 @@ const ProfilePage = React.memo(() => {
                 <Grid item xs={6}>
                   <Paper sx={{ p: 2, textAlign: 'center' }}>
                     <Typography variant="h4" color="primary">
-                      0
+                      {carsCount}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Cars Registered
@@ -258,7 +215,7 @@ const ProfilePage = React.memo(() => {
                 <Grid item xs={6}>
                   <Paper sx={{ p: 2, textAlign: 'center' }}>
                     <Typography variant="h4" color="secondary">
-                      0
+                      {maintenanceCount}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Maintenance Records
@@ -268,7 +225,7 @@ const ProfilePage = React.memo(() => {
                 <Grid item xs={6}>
                   <Paper sx={{ p: 2, textAlign: 'center' }}>
                     <Typography variant="h4" color="warning.main">
-                      0
+                      {errorCodesCount}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Error Codes
@@ -278,7 +235,7 @@ const ProfilePage = React.memo(() => {
                 <Grid item xs={6}>
                   <Paper sx={{ p: 2, textAlign: 'center' }}>
                     <Typography variant="h4" color="success.main">
-                      0
+                      {daysActive}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Days Active
@@ -300,27 +257,7 @@ const ProfilePage = React.memo(() => {
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={3}>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    startIcon={<Notifications />}
-                    sx={{ py: 2 }}
-                  >
-                    Notification Settings
-                  </Button>
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    startIcon={<Storage />}
-                    sx={{ py: 2 }}
-                  >
-                    Export Data
-                  </Button>
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6}>
                   <Button
                     variant="outlined"
                     fullWidth
@@ -330,7 +267,7 @@ const ProfilePage = React.memo(() => {
                     Help & Support
                   </Button>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6}>
                   <Button
                     variant="outlined"
                     fullWidth
