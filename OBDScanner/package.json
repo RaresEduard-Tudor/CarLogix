@@ -3,17 +3,21 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
+    "start": "expo start --dev-client",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "prebuild": "expo prebuild",
+    "build:android": "eas build --platform android"
   },
   "dependencies": {
     "expo": "~54.0.12",
+    "expo-dev-client": "^6.0.13",
     "expo-status-bar": "~3.0.8",
     "react": "19.1.0",
     "react-dom": "^19.1.0",
     "react-native": "0.81.4",
+    "react-native-bluetooth-classic": "^1.73.0-rc.15",
     "react-native-web": "^0.21.1"
   },
   "private": true
