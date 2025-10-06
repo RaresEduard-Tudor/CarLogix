@@ -38,9 +38,16 @@ export default function OBDScannerScreen() {
       setDevices([]);
       
       const foundDevices = await BluetoothService.scanForDevices();
+      console.log('Found devices:', foundDevices);
       setDevices(foundDevices);
-      setShowDeviceModal(true);
+      
+      if (foundDevices.length > 0) {
+        setShowDeviceModal(true);
+      } else {
+        Alert.alert('No Devices', 'No Bluetooth devices found. Make sure Bluetooth is enabled and devices are discoverable.');
+      }
     } catch (error) {
+      console.error('Scan error:', error);
       Alert.alert('Scan Error', error.message);
     } finally {
       setIsScanning(false);
