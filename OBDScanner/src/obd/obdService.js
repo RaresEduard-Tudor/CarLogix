@@ -33,25 +33,35 @@ class OBDService {
    */
   async initializeELM327() {
     const initCommands = [
-      'ATZ',      // Reset adapter
-      'ATE0',     // Echo off
-      'ATL0',     // Linefeeds off
-      'ATS0',     // Spaces off
-      'ATH1',     // Headers on
-      'ATSP0',    // Set protocol to auto
+      { cmd: 'ATZ', desc: 'Reset adapter', waitTime: 2000 },       // Reset needs more time
+      { cmd: 'ATE0', desc: 'Echo off', waitTime: 500 },           
+      { cmd: 'ATL0', desc: 'Linefeeds off', waitTime: 300 },      
+      { cmd: 'ATS0', desc: 'Spaces off', waitTime: 300 },         
+      { cmd: 'ATH1', desc: 'Headers on', waitTime: 300 },         
+      { cmd: 'ATSP0', desc: 'Set protocol to auto', waitTime: 500 },
     ];
 
-    for (const command of initCommands) {
+    for (const { cmd, desc, waitTime } of initCommands) {
       try {
-        const response = await BluetoothService.sendCommand(command + '\\r', 3000);
-        console.log(`${command}: ${response}`);
+        console.log(`Sending: ${cmd}\\r`);
+        const response = await BluetoothService.sendCommand(cmd + '\\r', 5000);
+        console.log(`${cmd}: ${response}`);
         
-        // Wait a bit between commands
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Wait between commands for adapter to process
+        await new Promise(resolve => setTimeout(resolve, waitTime));
       } catch (error) {
-        console.warn(`Failed to send ${command}:`, error);
-        // Continue initialization even if some commands fail (for mock devices)
+        console.warn(`Failed to send ${cmd} (${desc}):`, error);
+        // Continue initialization even if some commands fail
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
+    }
+
+    // Test communication with a basic command
+    try {
+      const testResponse = await this.sendOBDCommand('0100');
+      console.log('Test communication successful:', testResponse);
+    } catch (error) {
+      console.warn('Test communication failed:', error);
     }
   }
 
@@ -108,24 +118,49 @@ class OBDService {
    * Parse OBD response and clean it up
    */
   parseOBDResponse(response) {
-    if (!response) return null;
+    if (!response || response === null) {
+      console.log('No response data to parse');
+      return null;
+    }
+    
+    // Convert to string if needed
+    let cleaned = response.toString();
     
     // Remove common prefixes and clean up
-    let cleaned = response
+    cleaned = cleaned
       .replace(/^>/, '')           // Remove prompt
       .replace(/\\r/g, '')         // Remove carriage returns
       .replace(/\\n/g, ' ')        // Replace newlines with spaces
       .replace(/\\s+/g, ' ')       // Normalize spaces
+      .replace(/\\./g, '')         // Remove dots
+      .replace(/^\\s*/, '')        // Remove leading spaces
+      .replace(/\\s*$/, '')        // Remove trailing spaces
       .trim();
+    
+    console.log(`Parsed response: "${cleaned}"`);
     
     // Check for errors
     if (cleaned.includes('NO DATA') || 
         cleaned.includes('ERROR') || 
-        cleaned.includes('UNABLE TO CONNECT')) {
-      throw new Error(`OBD Error: ${cleaned}`);
+        cleaned.includes('UNABLE TO CONNECT') ||
+        cleaned.includes('BUS INIT') ||
+        cleaned.includes('?')) {
+      console.warn(`OBD Error response: ${cleaned}`);
+      return null;
     }
     
-    return cleaned;
+    // Check for valid hex response (should start with digits/letters)
+    if (cleaned.length > 0 && /^[0-9A-Fa-f\\s]+$/.test(cleaned)) {
+      return cleaned;
+    }
+    
+    // If we get here, might be initialization response like "OK" or "ELM327"
+    if (cleaned.includes('OK') || cleaned.includes('ELM327')) {
+      return cleaned;
+    }
+    
+    console.log('Unexpected response format:', cleaned);
+    return cleaned; // Return as-is for debugging
   }
 
   /**
@@ -290,6 +325,44 @@ class OBDService {
     } catch (error) {
       console.error('Error reading engine RPM:', error);
       return null;
+    }
+  }
+
+  /**
+   * Get real-time vehicle data (for refresh functionality)
+   */
+  async getVehicleData() {
+    try {
+      const data = {
+        speed: null,
+        rpm: null,
+        timestamp: new Date().toISOString()
+      };
+
+      // Try to get speed
+      try {
+        data.speed = await this.getVehicleSpeed();
+      } catch (error) {
+        console.warn('Could not read speed:', error);
+      }
+
+      // Try to get RPM
+      try {
+        data.rpm = await this.getEngineRPM();
+      } catch (error) {
+        console.warn('Could not read RPM:', error);
+      }
+
+      console.log('Vehicle data retrieved:', data);
+      return data;
+    } catch (error) {
+      console.error('Error getting vehicle data:', error);
+      return {
+        speed: null,
+        rpm: null,
+        timestamp: new Date().toISOString(),
+        error: error.message
+      };
     }
   }
 

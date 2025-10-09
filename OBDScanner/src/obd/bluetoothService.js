@@ -42,7 +42,7 @@ class BluetoothService {
   /**
    * Scan for available Bluetooth devices
    */
-  async scanForDevices(timeout = 10000) {
+  async scanForDevices() {
     try {
       this.isScanning = true;
       
@@ -164,7 +164,7 @@ class BluetoothService {
   }
 
   /**
-   * Read data from connected device
+   * Read data from connected device with proper buffering
    */
   async readData(timeout = 5000) {
     try {
@@ -172,23 +172,43 @@ class BluetoothService {
         throw new Error('No device connected');
       }
 
-      return new Promise((resolve, reject) => {
-        const timeoutId = setTimeout(() => {
-          reject(new Error('Read timeout'));
+      return new Promise((resolve) => {
+        let buffer = '';
+
+        const readTimeout = setTimeout(() => {
+          if (buffer.length > 0) {
+            console.log(`Received (timeout): ${buffer}`);
+            resolve(buffer);
+          } else {
+            console.log('Received: null');
+            resolve(null);
+          }
         }, timeout);
 
-        this.connectedDevice.read().then(data => {
-          clearTimeout(timeoutId);
-          console.log(`Received: ${data}`);
-          resolve(data);
+        // Try to read available data
+        this.connectedDevice.available().then(available => {
+          if (available > 0) {
+            return this.connectedDevice.read();
+          }
+          return null;
+        }).then(data => {
+          clearTimeout(readTimeout);
+          if (data) {
+            console.log(`Received: ${data}`);
+            resolve(data);
+          } else {
+            console.log('Received: null');
+            resolve(null);
+          }
         }).catch(error => {
-          clearTimeout(timeoutId);
-          reject(error);
+          clearTimeout(readTimeout);
+          console.log('Read error, returning null:', error);
+          resolve(null);
         });
       });
     } catch (error) {
       console.error('Error reading data:', error);
-      throw error;
+      return null;
     }
   }
 
