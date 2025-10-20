@@ -2,21 +2,39 @@
 
 🚗 **CarLogix** is a digital maintenance and diagnostics companion for car owners. Replace your paper service notebook with a modern, cloud-synced solution that tracks maintenance records, error codes, and reminds you of upcoming services.
 
-## MVP 1 Features ✨
+## Features ✨
 
-- **Mock Authentication** - Simple login (any credentials work for demo)
-- **Car Management** - Add and manage your vehicles (brand, model, year, VIN)
+### Web Application
+- **Firebase Authentication** - Secure user login and registration
+- **Car Management** - Add and manage multiple vehicles (brand, model, year, VIN)
 - **Maintenance Tracking** - Log service records with dates, mileage, costs, and notes
 - **Error Code Scanner** - Mock OBD-II scanner that returns sample diagnostic codes
 - **Dashboard Overview** - Quick stats and recent activity
+- **Cloud Sync** - All data synced with Firebase Firestore
+- **Responsive Design** - Works on desktop, tablet, and mobile browsers
+
+### Mobile Application (OBDScanner)
+- **Real OBD-II Scanner** - Connect to ELM327 Bluetooth adapters
+- **Read Diagnostic Codes** - Retrieve real DTCs from your vehicle
+- **Clear Error Codes** - Clear diagnostic trouble codes
+- **Bluetooth Integration** - Native Bluetooth Classic support on Android
+- **Real-time Data** - View vehicle speed, RPM, and more
 
 ## Tech Stack 🛠️
 
+### Web App
 - **Frontend**: React 19 + Vite
 - **UI Library**: Material-UI (MUI)
 - **Routing**: React Router v7
-- **Package Manager**: Yarn (for better security)
-- **State Management**: React Hooks (local state for MVP)
+- **Backend**: Firebase (Authentication, Firestore, Storage)
+- **Package Manager**: Yarn
+- **State Management**: React Context + Hooks
+- **Deployment**: Docker + Render.com
+
+### Mobile App (Android)
+- **Framework**: React Native + Expo
+- **Bluetooth**: react-native-bluetooth-classic
+- **Platform**: Android (Bluetooth Classic required)
 
 ## Getting Started 🚀
 
@@ -24,80 +42,158 @@
 
 - Node.js 18+ 
 - Yarn package manager
+- Firebase account (for backend)
+- Docker (optional, for containerized deployment)
 
-### Installation
+### Web Application Setup
 
-1. Clone the repository:
+1. **Clone the repository:**
 ```bash
 git clone https://github.com/RaresEduard-Tudor/CarLogix.git
 cd CarLogix
 ```
 
-2. Install dependencies:
+2. **Install dependencies:**
 ```bash
 yarn install
 ```
 
-3. Start the development server:
+3. **Configure Firebase:**
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit .env with your Firebase credentials
+nano .env
+```
+
+See [FIREBASE_SETUP.md](FIREBASE_SETUP.md) for detailed Firebase configuration.
+
+4. **Start the development server:**
 ```bash
 yarn dev
 ```
 
-4. Open [http://localhost:5173](http://localhost:5173) in your browser
+5. **Open [http://localhost:5173](http://localhost:5173) in your browser**
+
+### Mobile App Setup
+
+See [OBDScanner/README.md](OBDScanner/README.md) for Android app setup instructions.
+
+### Docker Deployment (Optional)
+
+See [DOCKER_README.md](DOCKER_README.md) for containerized deployment.
+
+**Quick start with Docker:**
+```bash
+# Production build
+docker-compose up --build carlogix-web
+
+# Development with hot reload
+docker-compose -f docker-compose.dev.yml up
+```
 
 ### Available Scripts
 
+#### Web App
 - `yarn dev` - Start development server
 - `yarn build` - Build for production
 - `yarn preview` - Preview production build
 - `yarn lint` - Run ESLint
 
-## Demo Usage 📱
+#### Mobile App (in OBDScanner directory)
+- `yarn start` - Start Expo dev server with tunnel
+- `yarn android` - Build and run on Android
+- `yarn prebuild` - Generate native code
 
-1. **Login**: Use any email/password (e.g., `demo@carlogix.com` / `demo123`)
+## Usage 📱
+
+### Web Application
+
+1. **Create Account**: Register with email/password or use social login
 2. **Add a Car**: Go to "My Cars" and add your vehicle details
 3. **Log Maintenance**: Navigate to "Maintenance" to add service records
-4. **Scan for Errors**: Use the "Error Codes" page to simulate OBD-II scanning
+4. **Scan for Errors**: Use the "Error Codes" page (mock data on web)
 5. **View Dashboard**: Check the overview of your maintenance data
+6. **Access Anywhere**: Your data syncs across all devices
+
+### Mobile App
+
+1. **Install Development Build**: Follow OBDScanner/README.md
+2. **Enable Bluetooth**: Turn on Bluetooth on your Android device
+3. **Connect OBD Adapter**: Plug ELM327 adapter into your car's OBD-II port
+4. **Pair Device**: Scan and connect to your Bluetooth OBD adapter
+5. **Read Codes**: Scan for real diagnostic trouble codes from your vehicle
+6. **Clear Codes**: Clear error codes directly from the app
 
 ## Project Structure 📁
 
 ```
-src/
-├── components/          # Reusable UI components
-│   └── DashboardLayout.jsx
-├── pages/              # Main application pages
-│   ├── LoginPage.jsx
-│   ├── DashboardPage.jsx
-│   ├── CarsPage.jsx
-│   ├── MaintenancePage.jsx
-│   └── ErrorCodesPage.jsx
-├── hooks/              # Custom React hooks
-│   └── useCarLogix.js
-├── data/               # Mock data and schemas
-│   └── mockData.js
-└── App.jsx            # Main application component
+CarLogix/
+├── src/                      # Web application source
+│   ├── components/          # Reusable UI components
+│   ├── pages/              # Main application pages
+│   ├── hooks/              # Custom React hooks
+│   ├── contexts/           # React Context providers
+│   ├── services/           # Firebase service layer
+│   ├── config/             # Configuration files
+│   └── utils/              # Utility functions
+├── OBDScanner/              # React Native mobile app
+│   ├── src/
+│   │   ├── screens/        # Mobile screens
+│   │   └── obd/            # OBD-II service layer
+│   └── android/            # Android native code
+├── public/                  # Static assets
+├── scripts/                 # Database setup scripts
+├── Dockerfile              # Production Docker image
+├── docker-compose.yml      # Docker orchestration
+├── nginx.conf              # Nginx configuration
+└── firebase.json           # Firebase configuration
+```
+
+## Deployment �
+
+### Render.com (Recommended)
+See [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md) for complete deployment guide.
+
+**Quick deploy:**
+1. Push code to GitHub
+2. Create Web Service on Render
+3. Connect GitHub repository
+4. Set environment variables
+5. Deploy!
+
+### Docker
+See [DOCKER_README.md](DOCKER_README.md) for Docker deployment.
+
+### Firebase Hosting (Alternative)
+```bash
+firebase deploy --only hosting
 ```
 
 ## Roadmap 🗺️
 
-### MVP 2 - Cloud Sync
-- Firebase Authentication
-- Firestore database
-- Real-time data sync
-- User profiles
+### Current Status ✅
+- ✅ Firebase Authentication
+- ✅ Firestore database
+- ✅ Real-time data sync
+- ✅ User profiles
+- ✅ React Native mobile app
+- ✅ Real OBD-II integration
+- ✅ Docker containerization
 
-### MVP 3 - Mobile App
-- React Native companion app
-- Real OBD-II integration
-- Push notifications
-- Offline support
+### In Progress 🚧
+- 🚧 Push notifications
+- 🚧 Offline support for mobile
+- 🚧 PDF export for service records
 
-### Future Features
-- PDF export for service records
+### Future Features 📋
 - Multi-user car sharing
 - Maintenance reminders
-- Mechanic sharing
+- Mechanic/shop integration
+- Advanced analytics
+- Car marketplace integration
+- Integration with car manufacturer APIs
 - AI-powered diagnostics
 
 ## Contributing 🤝
