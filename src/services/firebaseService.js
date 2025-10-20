@@ -213,19 +213,20 @@ class FirebaseService {
 
   async getErrorCodes(userId, carId = null) {
     try {
+      // Query errorCodeScans collection (new schema from mobile app)
       let q;
       if (carId) {
         q = query(
-          collection(db, 'errorCodes'),
+          collection(db, 'errorCodeScans'),
           where('userId', '==', userId),
           where('carId', '==', carId),
-          orderBy('detectedAt', 'desc')
+          orderBy('timestamp', 'desc')
         );
       } else {
         q = query(
-          collection(db, 'errorCodes'),
+          collection(db, 'errorCodeScans'),
           where('userId', '==', userId),
-          orderBy('detectedAt', 'desc')
+          orderBy('timestamp', 'desc')
         );
       }
       
@@ -243,7 +244,7 @@ class FirebaseService {
 
   async updateErrorCode(errorId, errorData) {
     try {
-      await updateDoc(doc(db, 'errorCodes', errorId), {
+      await updateDoc(doc(db, 'errorCodeScans', errorId), {
         ...errorData,
         updatedAt: serverTimestamp()
       });
@@ -256,9 +257,9 @@ class FirebaseService {
 
   async clearErrorCode(errorId) {
     try {
-      await updateDoc(doc(db, 'errorCodes', errorId), {
-        status: 'cleared',
-        clearedAt: serverTimestamp(),
+      await updateDoc(doc(db, 'errorCodeScans', errorId), {
+        status: 'resolved',
+        resolvedAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       });
       return { success: true };

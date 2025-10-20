@@ -12,8 +12,9 @@ import {
 } from 'react-native';
 import BluetoothService from '../obd/bluetoothService';
 import OBDService from '../obd/obdService';
+import { saveErrorCodes } from '../services/firebaseService';
 
-export default function OBDScannerScreen() {
+export default function OBDScannerScreen({ user, selectedCar, onBackToCarSelection }) {
   const [devices, setDevices] = useState([]);
   const [isScanning, setIsScanning] = useState(false);
   const [connectedDevice, setConnectedDevice] = useState(null);
@@ -22,6 +23,7 @@ export default function OBDScannerScreen() {
   const [isReadingCodes, setIsReadingCodes] = useState(false);
   const [vehicleData, setVehicleData] = useState({ speed: null, rpm: null });
   const [showDeviceModal, setShowDeviceModal] = useState(false);
+  const [isSavingCodes, setIsSavingCodes] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -93,12 +95,50 @@ export default function OBDScannerScreen() {
       if (codes.length === 0) {
         Alert.alert('No Codes', 'No error codes found. Your vehicle appears to be running normally.');
       } else {
-        Alert.alert('Scan Complete', `Found ${codes.length} error code(s)`);
+        Alert.alert(
+          'Scan Complete',
+          `Found ${codes.length} error code(s).\n\nSave to your CarLogix account?`,
+          [
+            { text: 'Skip', style: 'cancel' },
+            {
+              text: 'Save',
+              onPress: () => handleSaveCodes(codes),
+            },
+          ]
+        );
       }
     } catch (error) {
       Alert.alert('Scan Error', `Failed to read error codes: ${error.message}`);
     } finally {
       setIsReadingCodes(false);
+    }
+  };
+
+  const handleSaveCodes = async (codes) => {
+    try {
+      setIsSavingCodes(true);
+      
+      const carName = `${selectedCar.year} ${selectedCar.brand} ${selectedCar.model}`;
+      const result = await saveErrorCodes(
+        user.uid,
+        selectedCar.id,
+        carName,
+        codes,
+        vehicleData.mileage || null
+      );
+
+      if (result.success) {
+        Alert.alert(
+          'Saved!',
+          'Error codes saved to your CarLogix account.\n\nView them in the web app under "Error Codes".'
+        );
+      } else {
+        Alert.alert('Save Failed', result.error || 'Failed to save error codes');
+      }
+    } catch (error) {
+      Alert.alert('Error', `Failed to save: ${error.message}`);
+    } finally {
+      setIsSavingCodes(false);
     }
   };
 
@@ -172,6 +212,16 @@ export default function OBDScannerScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
+        <View style={styles.headerTop}>
+          <TouchableOpacity onPress={onBackToCarSelection} style={styles.backButton}>
+            <Text style={styles.backButtonText}>← Back</Text>
+          </TouchableOpacity>
+          <View style={styles.headerInfo}>
+            <Text style={styles.carInfo}>
+              {selectedCar.year} {selectedCar.brand} {selectedCar.model}
+            </Text>
+          </View>
+        </View>
         <Text style={styles.title}>🚗 OBD Scanner</Text>
         <Text style={styles.subtitle}>Bluetooth OBD-II Diagnostic Tool</Text>
       </View>
@@ -325,18 +375,44 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 20,
     paddingHorizontal: 20,
+  },
+  headerTop: {
+    flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 15,
+  },
+  backButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 6,
+  },
+  backButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  headerInfo: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  carInfo: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: 'white',
     marginBottom: 5,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
     color: 'white',
     opacity: 0.9,
+    textAlign: 'center',
   },
   content: {
     flex: 1,

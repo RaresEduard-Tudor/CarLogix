@@ -11,13 +11,20 @@
     "build:android": "eas build --platform android"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.1.0",
+    "@react-navigation/native": "^7.0.14",
+    "@react-navigation/stack": "^7.2.1",
     "expo": "~54.0.12",
     "expo-dev-client": "^6.0.13",
     "expo-status-bar": "~3.0.8",
+    "firebase": "^12.3.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.4",
     "react-native-bluetooth-classic": "^1.73.0-rc.15",
+    "react-native-gesture-handler": "^2.22.3",
+    "react-native-safe-area-context": "^5.1.10",
+    "react-native-screens": "^4.5.10",
     "react-native-web": "^0.21.1"
   },
   "private": true
