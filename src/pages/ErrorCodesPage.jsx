@@ -28,7 +28,9 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemIcon
+  ListItemIcon,
+  Collapse,
+  Divider
 } from '@mui/material';
 import {
   Error,
@@ -37,65 +39,60 @@ import {
   Clear,
   CalendarToday,
   Speed,
-  Info
+  Info,
+  History,
+  ExpandMore,
+  ExpandLess,
+  DirectionsCar
 } from '@mui/icons-material';
 import { useSettings } from '../contexts/SettingsContext_Firebase';
 
-const ErrorCodesPage = React.memo(({ cars, errorCodes, onAddErrorCode, onUpdateErrorCode }) => {
+const ErrorCodesPage = React.memo(({ cars, errorCodes, onUpdateErrorCode }) => {
   const { formatDate, formatDistance } = useSettings();
-  const [selectedCarId, setSelectedCarId] = useState('');
-  const [scanning, setScanning] = useState(false);
-  const [scanResults, setScanResults] = useState(null);
-  const [showResults, setShowResults] = useState(false);
+  const [showScanHistory, setShowScanHistory] = useState({});
 
-  const handleScan = async () => {
-    if (!selectedCarId) return;
-    
-    setScanning(true);
+  const toggleScanHistory = (carId) => {
+    setShowScanHistory(prev => ({
+      ...prev,
+      [carId]: !prev[carId]
+    }));
+  };
+
+  const handleMarkResolved = async (scanId) => {
     try {
-      // MVP: Simulate scanning functionality
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate scan delay
-      
-      // Mock scan results
-      const mockResults = [
-        { code: 'P0301', description: 'Cylinder 1 Misfire Detected', severity: 'moderate' },
-        { code: 'P0171', description: 'System Too Lean (Bank 1)', severity: 'low' }
-      ];
-      
-      setScanResults(mockResults);
-      setShowResults(true);
+      await onUpdateErrorCode(scanId, { status: 'resolved' });
     } catch (error) {
-      console.error('Scan failed:', error);
-    } finally {
-      setScanning(false);
+      console.error('Error marking scan as resolved:', error);
     }
   };
 
-  const handleClearError = (errorId) => {
-    // MVP: Placeholder for clear error functionality
-    alert('Clear error feature coming in MVP 2! This would mark the error as resolved.');
-    console.log('Would clear error:', errorId);
+  // Group scans by car
+  const scansByCar = cars.reduce((acc, car) => {
+    const carScans = errorCodes.filter(scan => scan.carId === car.id);
+    if (carScans.length > 0) {
+      acc[car.id] = {
+        car,
+        scans: carScans.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+      };
+    }
+    return acc;
+  }, {});
+
+  const totalScans = errorCodes.length;
+  const activeScans = errorCodes.filter(scan => scan.status === 'active' || !scan.status).length;
+  const resolvedScans = errorCodes.filter(scan => scan.status === 'resolved').length;
+  const totalErrorCodes = errorCodes.reduce((sum, scan) => sum + (scan.codes?.length || 0), 0);
+
+  const getCarName = (car) => {
+    return `${car.brand} ${car.model} (${car.year})`;
   };
 
-  const filteredErrors = selectedCarId 
-    ? errorCodes.filter(error => error.carId === selectedCarId)
-    : errorCodes;
-
-  const sortedErrors = filteredErrors.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-  const activeErrors = filteredErrors.filter(error => error.status === 'active');
-  const clearedErrors = filteredErrors.filter(error => error.status === 'cleared');
-
-  const getCarName = (carId) => {
-    const car = cars.find(c => c.id === carId);
-    return car ? `${car.brand} ${car.model} (${car.year})` : 'Unknown Car';
-  };
-
-  const getSeverityColor = (severity) => {
-    switch (severity) {
-      case 'critical': return 'error';
-      case 'high': return 'error';
-      case 'moderate': return 'warning';
-      case 'low': return 'success';
+  const getTypeColor = (type) => {
+    switch (type) {
+      case 'powertrain': return 'error';
+      case 'chassis': return 'warning';
+      case 'body': return 'info';
+      case 'network': return 'secondary';
       default: return 'default';
     }
   };
@@ -105,283 +102,263 @@ const ErrorCodesPage = React.memo(({ cars, errorCodes, onAddErrorCode, onUpdateE
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box>
           <Typography variant="h4" gutterBottom>
-            Error Codes
+            Error Code History
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Scan for diagnostic trouble codes and track error history.
+            View scanned error codes from your mobile OBD scanner app.
           </Typography>
         </Box>
       </Box>
 
-      {cars.length === 0 ? (
-        <Alert severity="info">
-          <Typography variant="body1">
-            Please add a car first before scanning for error codes.
-          </Typography>
-        </Alert>
-      ) : (
-        <>
-          {/* Scanner Section */}
-          <Card sx={{ mb: 3 }}>
+      {/* Summary Stats */}
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
             <CardContent>
-              <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
-                <Scanner sx={{ mr: 1 }} />
-                OBD-II Scanner (Mock)
-              </Typography>
-              <Alert severity="info" sx={{ mb: 2 }}>
-                <strong>MVP Demo:</strong> This is a mock scanner that randomly generates sample error codes for testing.
-                In the full version, this would connect to a real OBD-II adapter.
-              </Alert>
-              
-              <Grid container spacing={2} alignItems="center">
-                <Grid item xs={12} md={6}>
-                  <FormControl fullWidth>
-                    <InputLabel>Select Car to Scan</InputLabel>
-                    <Select
-                      value={selectedCarId}
-                      label="Select Car to Scan"
-                      onChange={(e) => setSelectedCarId(e.target.value)}
-                    >
-                      {cars.map((car) => (
-                        <MenuItem key={car.id} value={car.id}>
-                          {getCarName(car.id)}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Button
-                    variant="contained"
-                    startIcon={scanning ? <CircularProgress size={20} /> : <Scanner />}
-                    onClick={handleScan}
-                    disabled={!selectedCarId || scanning}
-                    fullWidth
-                  >
-                    {scanning ? 'Scanning...' : 'Start Scan'}
-                  </Button>
-                </Grid>
-              </Grid>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography color="text.secondary" gutterBottom>
+                    Total Scans
+                  </Typography>
+                  <Typography variant="h4">
+                    {totalScans}
+                  </Typography>
+                </Box>
+                <Scanner sx={{ fontSize: 40, color: 'primary.main' }} />
+              </Box>
             </CardContent>
           </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography color="text.secondary" gutterBottom>
+                    Active Scans
+                  </Typography>
+                  <Typography variant="h4" color="error.main">
+                    {activeScans}
+                  </Typography>
+                </Box>
+                <Error sx={{ fontSize: 40, color: 'error.main' }} />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography color="text.secondary" gutterBottom>
+                    Resolved
+                  </Typography>
+                  <Typography variant="h4" color="success.main">
+                    {resolvedScans}
+                  </Typography>
+                </Box>
+                <CheckCircle sx={{ fontSize: 40, color: 'success.main' }} />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography color="text.secondary" gutterBottom>
+                    Error Codes
+                  </Typography>
+                  <Typography variant="h4">
+                    {totalErrorCodes}
+                  </Typography>
+                </Box>
+                <Info sx={{ fontSize: 40, color: 'warning.main' }} />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
-          {/* Summary Cards */}
-          <Grid container spacing={3} sx={{ mb: 3 }}>
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Box>
-                      <Typography color="text.secondary" gutterBottom>
-                        Active Errors
-                      </Typography>
-                      <Typography variant="h4" color="error.main">
-                        {activeErrors.length}
-                      </Typography>
-                    </Box>
-                    <Error sx={{ fontSize: 40, color: 'error.main' }} />
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Box>
-                      <Typography color="text.secondary" gutterBottom>
-                        Cleared Errors
-                      </Typography>
-                      <Typography variant="h4" color="success.main">
-                        {clearedErrors.length}
-                      </Typography>
-                    </Box>
-                    <CheckCircle sx={{ fontSize: 40, color: 'success.main' }} />
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Box>
-                      <Typography color="text.secondary" gutterBottom>
-                        Total Errors
-                      </Typography>
-                      <Typography variant="h4">
-                        {filteredErrors.length}
-                      </Typography>
-                    </Box>
-                    <Info sx={{ fontSize: 40, color: 'primary.main' }} />
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent>
-                  <FormControl fullWidth size="small">
-                    <InputLabel>Filter by Car</InputLabel>
-                    <Select
-                      value={selectedCarId}
-                      label="Filter by Car"
-                      onChange={(e) => setSelectedCarId(e.target.value)}
-                    >
-                      <MenuItem value="">All Cars</MenuItem>
-                      {cars.map((car) => (
-                        <MenuItem key={car.id} value={car.id}>
-                          {getCarName(car.id)}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-
-          {/* Error Codes Table */}
-          {sortedErrors.length === 0 ? (
-            <Card>
-              <CardContent sx={{ textAlign: 'center', py: 6 }}>
-                <CheckCircle sx={{ fontSize: 64, color: 'success.main', mb: 2 }} />
-                <Typography variant="h6" gutterBottom>
-                  No error codes found
-                </Typography>
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  {selectedCarId ? 
-                    'This car has no recorded error codes. Run a scan to check for new issues.' :
-                    'No error codes recorded yet. Select a car and run a scan to get started.'
-                  }
-                </Typography>
-              </CardContent>
-            </Card>
-          ) : (
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Code</TableCell>
-                    <TableCell>Description</TableCell>
-                    <TableCell>Severity</TableCell>
-                    <TableCell>Car</TableCell>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Mileage</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {sortedErrors.map((error) => (
-                    <TableRow key={error.id}>
-                      <TableCell>
-                        <Typography variant="body2" fontWeight="bold">
-                          {error.code}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
-                          {error.description}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Chip 
-                          label={error.severity} 
-                          size="small" 
-                          color={getSeverityColor(error.severity)}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
-                          {getCarName(error.carId)}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <CalendarToday sx={{ mr: 1, fontSize: 16 }} />
-                          {formatDate(error.timestamp)}
+      {errorCodes.length === 0 ? (
+        <Card>
+          <CardContent sx={{ textAlign: 'center', py: 6 }}>
+            <Scanner sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+            <Typography variant="h6" gutterBottom>
+              No scans yet
+            </Typography>
+            <Typography variant="body2" color="text.secondary" paragraph>
+              Use the mobile OBD Scanner app to scan your car for error codes.
+              They will appear here automatically!
+            </Typography>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          {/* Car Cards with Scan History */}
+          <Grid container spacing={3}>
+            {Object.values(scansByCar).map(({ car, scans }) => (
+              <Grid item xs={12} key={car.id}>
+                <Card>
+                  <CardContent>
+                    {/* Car Header */}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <DirectionsCar sx={{ mr: 2, fontSize: 32, color: 'primary.main' }} />
+                        <Box>
+                          <Typography variant="h6">
+                            {getCarName(car)}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {scans.length} scan{scans.length > 1 ? 's' : ''} recorded
+                          </Typography>
                         </Box>
-                      </TableCell>
-                      <TableCell>
-                        {error.mileage ? (
+                      </Box>
+                      <Button
+                        variant="outlined"
+                        startIcon={showScanHistory[car.id] ? <ExpandLess /> : <ExpandMore />}
+                        onClick={() => toggleScanHistory(car.id)}
+                      >
+                        {showScanHistory[car.id] ? 'Hide' : 'Show'} History
+                      </Button>
+                    </Box>
+
+                    {/* Recent Scan Summary */}
+                    <Box sx={{ p: 2, bgcolor: 'background.default', borderRadius: 1, mb: 2 }}>
+                      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        Most Recent Scan
+                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <CalendarToday sx={{ mr: 1, fontSize: 18 }} />
+                          <Typography variant="body2">
+                            {formatDate(scans[0].timestamp)}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Error sx={{ mr: 1, fontSize: 18, color: 'error.main' }} />
+                          <Typography variant="body2">
+                            {scans[0].codes?.length || 0} error code{scans[0].codes?.length !== 1 ? 's' : ''}
+                          </Typography>
+                        </Box>
+                        {scans[0].mileage && (
                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Speed sx={{ mr: 1, fontSize: 16 }} />
-                            {formatDistance(error.mileage)}
+                            <Speed sx={{ mr: 1, fontSize: 18 }} />
+                            <Typography variant="body2">
+                              {formatDistance(scans[0].mileage)}
+                            </Typography>
                           </Box>
-                        ) : '-'}
-                      </TableCell>
-                      <TableCell>
-                        <Chip 
-                          label={error.status} 
-                          size="small" 
-                          color={error.status === 'active' ? 'error' : 'success'}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {error.status === 'active' && (
-                          <IconButton 
-                            size="small" 
-                            onClick={() => handleClearError(error.id)}
-                            title="Mark as cleared"
-                          >
-                            <Clear />
-                          </IconButton>
                         )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
+                        <Box sx={{ ml: 'auto' }}>
+                          <Chip 
+                            label={scans[0].status === 'resolved' ? 'Resolved' : 'Active'} 
+                            size="small" 
+                            color={scans[0].status === 'resolved' ? 'success' : 'error'}
+                          />
+                        </Box>
+                      </Box>
+                    </Box>
+
+                    {/* Scan History (Collapsible) */}
+                    <Collapse in={showScanHistory[car.id]} timeout="auto" unmountOnExit>
+                      <Divider sx={{ my: 2 }} />
+                      <Typography variant="subtitle2" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+                        <History sx={{ mr: 1 }} />
+                        Scan History
+                      </Typography>
+                      
+                      {scans.map((scan, index) => (
+                        <Box 
+                          key={scan.id} 
+                          sx={{ 
+                            mb: 2, 
+                            p: 2, 
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            borderRadius: 1,
+                            bgcolor: scan.status === 'resolved' ? 'action.hover' : 'background.paper'
+                          }}
+                        >
+                          {/* Scan Header */}
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                            <Typography variant="body2" fontWeight="bold">
+                              Scan #{scans.length - index}
+                            </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Typography variant="caption" color="text.secondary">
+                                {formatDate(scan.timestamp)}
+                              </Typography>
+                              {scan.status === 'resolved' ? (
+                                <Chip label="Resolved" size="small" color="success" />
+                              ) : (
+                                <Button 
+                                  size="small" 
+                                  variant="outlined" 
+                                  color="success"
+                                  startIcon={<CheckCircle />}
+                                  onClick={() => handleMarkResolved(scan.id)}
+                                >
+                                  Mark Resolved
+                                </Button>
+                              )}
+                            </Box>
+                          </Box>
+
+                          {/* Error Codes List */}
+                          {scan.codes && scan.codes.length > 0 ? (
+                            <List dense disablePadding>
+                              {scan.codes.map((code, codeIndex) => (
+                                <ListItem key={codeIndex} disablePadding sx={{ py: 0.5 }}>
+                                  <ListItemIcon sx={{ minWidth: 36 }}>
+                                    <Error fontSize="small" color="error" />
+                                  </ListItemIcon>
+                                  <ListItemText
+                                    primary={
+                                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Typography variant="body2" fontWeight="bold">
+                                          {code.code}
+                                        </Typography>
+                                        {code.type && (
+                                          <Chip 
+                                            label={code.type} 
+                                            size="small" 
+                                            color={getTypeColor(code.type)}
+                                          />
+                                        )}
+                                      </Box>
+                                    }
+                                    secondary={code.description}
+                                  />
+                                </ListItem>
+                              ))}
+                            </List>
+                          ) : (
+                            <Typography variant="body2" color="text.secondary">
+                              No error codes in this scan
+                            </Typography>
+                          )}
+
+                          {/* Mileage Info */}
+                          {scan.mileage && (
+                            <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
+                              <Speed sx={{ mr: 1, fontSize: 16 }} />
+                              <Typography variant="caption" color="text.secondary">
+                                Mileage: {formatDistance(scan.mileage)}
+                              </Typography>
+                            </Box>
+                          )}
+                        </Box>
+                      ))}
+                    </Collapse>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
         </>
       )}
-
-      {/* Scan Results Dialog */}
-      <Dialog open={showResults} onClose={() => setShowResults(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center' }}>
-          <Scanner sx={{ mr: 1 }} />
-          Scan Results
-        </DialogTitle>
-        <DialogContent>
-          {scanResults && scanResults.length > 0 ? (
-            <>
-              <Alert severity="warning" sx={{ mb: 2 }}>
-                Found {scanResults.length} error code{scanResults.length > 1 ? 's' : ''}
-              </Alert>
-              <List>
-                {scanResults.map((error) => (
-                  <ListItem key={error.id}>
-                    <ListItemIcon>
-                      <Error color="error" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={`${error.code} - ${error.severity.toUpperCase()}`}
-                      secondary={error.description}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </>
-          ) : (
-            <>
-              <Alert severity="success" sx={{ mb: 2 }}>
-                <CheckCircle sx={{ mr: 1 }} />
-                No error codes found!
-              </Alert>
-              <Typography variant="body2" color="text.secondary">
-                Your vehicle is running clean with no diagnostic trouble codes detected.
-              </Typography>
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowResults(false)} variant="contained">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 });

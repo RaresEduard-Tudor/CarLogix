@@ -47,7 +47,7 @@ export const onAuthChange = (callback) => {
 export const getUserCars = async (userId) => {
   try {
     const carsRef = collection(db, 'cars');
-    const q = query(carsRef, where('userId', '==', userId));
+    const q = query(carsRef, where('ownerId', '==', userId));
     const querySnapshot = await getDocs(q);
     
     const cars = [];
