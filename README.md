@@ -1,6 +1,306 @@
 # CarLogix
 
-🚗 **CarLogix** is a digital maintenance and diagnostics companion for car owners. Replace your paper service notebook with a modern, cloud-synced solution that tracks maintenance records, error codes, and reminds you of upcoming services.
+🚗 **CarLogix** is a comprehensive car maintenance and diagnostics platform with mobile OBD-II scanning and cloud-synced web dashboard.
+
+## Features ✨
+
+### 🌐 Web Dashboard
+- **Firebase Authentication** - Secure user accounts
+- **Car Management** - Track multiple vehicles
+- **Maintenance History** - Log service records with dates, costs, and notes
+- **Error Code History** - View all OBD-II scans from mobile app
+- **Real-time Sync** - Instant updates across devices
+- **Responsive Design** - Works on desktop, tablet, and mobile
+
+### 📱 Mobile App (Android)
+- **Real OBD-II Scanner** - Connect via Bluetooth Classic (ELM327 adapters)
+- **Firebase Integration** - Login and sync with web dashboard
+- **Car Selection** - Choose which vehicle to scan
+- **Error Code Reading** - Retrieve DTCs from your vehicle
+- **Cloud Sync** - Automatically save scans to Firestore
+- **Scan History** - View past scans per vehicle
+
+## Tech Stack 🛠️
+
+### Web App
+- React 19 + Vite 7
+- Material-UI (MUI)
+- Firebase (Auth, Firestore, Storage)
+- Docker + Nginx
+- Yarn package manager
+
+### Mobile App
+- React Native 0.81 + Expo SDK 54
+- react-native-bluetooth-classic
+- Firebase SDK
+- React Navigation 7
+- Android only (Bluetooth Classic required)
+
+## Quick Start 🚀
+
+### Prerequisites
+- Node.js 18+
+- Yarn
+- Firebase account
+- Android device (for mobile app)
+- ELM327 Bluetooth OBD-II adapter (for real scanning)
+
+### Web App Setup
+
+```bash
+# Clone repository
+git clone https://github.com/RaresEduard-Tudor/CarLogix.git
+cd CarLogix
+
+# Install dependencies
+yarn install
+
+# Configure Firebase - create .env file
+cp .env.example .env
+# Edit .env with your Firebase credentials
+
+# Start development server
+yarn dev
+# Open http://localhost:5173
+```
+
+### Mobile App Setup
+
+```bash
+cd OBDScanner
+
+# Install dependencies
+yarn install
+
+# Configure Firebase
+# Edit src/config/firebase.js with your credentials
+
+# Build Android app
+yarn expo prebuild --clean
+yarn expo run:android
+
+# Or install pre-built APK from GitHub Releases
+```
+
+## Firebase Setup 🔥
+
+1. Create project at [Firebase Console](https://console.firebase.google.com)
+2. Enable **Authentication** → Email/Password
+3. Create **Firestore Database** (production mode)
+4. Add **Web App** in Project Settings
+5. Copy config to `.env`:
+
+```env
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+```
+
+6. Deploy Firestore security rules from `firestore.rules`
+7. Create composite index for errorCodeScans (link appears in console on first query)
+
+## Firestore Collections Structure 📊
+
+```javascript
+users/{userId}
+  - email, displayName, createdAt
+
+cars/{carId}
+  - ownerId, brand, model, year, vin, mileage
+  - licensePlate, color, purchaseDate
+
+maintenanceRecords/{recordId}
+  - userId, carId, date, type, cost
+  - description, mileage, location
+
+errorCodeScans/{scanId}
+  - userId, carId, carName, timestamp
+  - codes: [{ code, description, type }]
+  - mileage, status (active/resolved)
+```
+
+## Deployment Options 🚢
+
+### Option 1: Docker (Recommended for Self-Hosting)
+
+```bash
+# Build and run production container
+docker-compose build
+docker-compose up carlogix-web
+
+# Access at http://localhost:3000
+```
+
+### Option 2: Static Hosting (Netlify, Vercel, Firebase Hosting)
+
+```bash
+# Build production bundle
+yarn build
+
+# Deploy dist/ folder to your host
+# Configure redirects for SPA routing
+```
+
+### Option 3: Localtunnel (Testing/Demo)
+
+```bash
+# Start dev server
+yarn dev
+
+# In another terminal, expose publicly
+npx localtunnel --port 5173
+
+# Update vite.config.js already configured for .loca.lt domains
+```
+
+## Mobile App Distribution 📲
+
+### GitHub Releases (Recommended)
+1. Download `app-release.apk` from [Releases](https://github.com/RaresEduard-Tudor/CarLogix/releases)
+2. Enable "Install from Unknown Sources" on Android
+3. Install APK
+
+### Build from Source
+```bash
+cd OBDScanner/android
+./gradlew assembleRelease
+# APK: android/app/build/outputs/apk/release/app-release.apk
+```
+
+## Usage 📱
+
+### Complete Workflow
+1. **Web**: Create account and add your vehicles
+2. **Mobile**: Install app, login with same account
+3. **Mobile**: Select car, connect to OBD-II adapter via Bluetooth
+4. **Mobile**: Scan for error codes, save to cloud
+5. **Web**: View scan history under "Error Codes" page
+6. **Web**: Mark scans as "Resolved" when fixed
+
+### OBD-II Adapter Setup
+1. Plug ELM327 adapter into car's OBD-II port (usually under dashboard)
+2. Turn on car ignition
+3. Enable Bluetooth on phone
+4. In mobile app, scan for "OBDII" or "ELM327" device
+5. Connect (default PIN: 1234 or 0000)
+6. Start scanning!
+
+## Project Structure 📁
+
+```
+CarLogix/
+├── src/                          # Web app source
+│   ├── components/              # UI components
+│   ├── pages/                   # Main pages
+│   ├── hooks/                   # React hooks (useFirebaseCarLogix)
+│   ├── contexts/                # Settings, Theme contexts
+│   ├── services/                # Firebase services
+│   └── config/                  # Firebase config
+├── OBDScanner/                   # Mobile app
+│   ├── src/
+│   │   ├── screens/            # Login, CarSelection, OBDScanner
+│   │   ├── services/           # Firebase service
+│   │   ├── obd/                # Bluetooth & OBD logic
+│   │   └── config/             # Firebase config
+│   └── android/                # Native Android code
+├── public/                       # Static assets
+├── Dockerfile                    # Production image
+├── docker-compose.yml           # Container orchestration
+├── nginx.conf                   # Nginx config for SPA
+├── vite.config.js               # Vite config (allows localtunnel)
+└── firestore.rules              # Firestore security rules
+```
+
+## Available Commands 🔧
+
+### Web App
+```bash
+yarn dev          # Start dev server (port 5173)
+yarn build        # Build for production
+yarn preview      # Preview production build
+yarn lint         # Run ESLint
+```
+
+### Mobile App
+```bash
+yarn start                    # Start Expo dev server
+yarn expo run:android         # Build and run on device
+yarn expo prebuild --clean    # Regenerate native code
+cd android && ./gradlew assembleRelease  # Build APK
+```
+
+## Troubleshooting 🔧
+
+### Web App Issues
+
+**Firebase Permission Errors**
+- Deploy `firestore.rules` via Firebase Console → Firestore Database → Rules
+- Ensure user is authenticated before querying
+
+**Port 3000 Already in Use**
+- Docker auto-restart is now disabled in docker-compose.yml
+- Stop containers: `docker-compose down`
+
+### Mobile App Issues
+
+**TurboModule Error on Startup**
+- Run `yarn expo prebuild --clean`
+- Then `yarn expo run:android` to rebuild native modules
+
+**Bluetooth Connection Failed**
+- Ensure OBD adapter is powered (car ignition on)
+- Try pairing in Android Settings first
+- Default PIN: 1234 or 0000
+
+**No Cars Found After Login**
+- Check firestore.rules deployed correctly
+- Ensure cars collection uses `ownerId` field matching user's UID
+
+## Security Notes 🔒
+
+- Never commit `.env` or `firebase.js` with real credentials
+- Use Firestore security rules to protect user data
+- Mobile app stores auth token in AsyncStorage (encrypted on device)
+- Web app uses Firebase SDK session management
+
+## Contributing 🤝
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
+
+## License 📄
+
+MIT License - see LICENSE file for details
+
+## Roadmap 🗺️
+
+### ✅ Completed (v1.0.0)
+- Firebase authentication & Firestore
+- Mobile OBD-II scanner with Bluetooth
+- Error code cloud sync
+- Web dashboard with scan history
+- Docker deployment
+- GitHub Releases for APK
+
+### 🚧 Next Up
+- Push notifications for new scans
+- Maintenance reminders (mileage/date based)
+- PDF export for service records
+- iOS support (BLE OBD adapters)
+- Offline mode for mobile
+- Advanced analytics & charts
+
+---
+
+**CarLogix** - Your car's digital companion! 🚗✨
+
+Made with ❤️ for car enthusiasts who want data-driven maintenance tracking.
 
 ## Features ✨
 

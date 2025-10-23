@@ -20,7 +20,7 @@ services:
     container_name: carlogix-web
     ports:
       - "3000:80"
-    restart: unless-stopped
+    restart: "no"  # Changed from unless-stopped to prevent auto-start
     networks:
       - carlogix-network
     healthcheck:
