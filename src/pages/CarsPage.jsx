@@ -28,6 +28,7 @@ import {
 import {
   Add,
   Edit,
+  Delete,
   DirectionsCar,
   Close,
   CalendarToday,
@@ -36,10 +37,11 @@ import {
 import { useSettings } from '../contexts/SettingsContext';
 import { getBrandNames, getModelsForBrand, carColors } from '../data/carData';
 
-const CarsPage = React.memo(({ cars, onAddCar, onUpdateCar }) => {
+const CarsPage = React.memo(({ cars, onAddCar, onUpdateCar, onDeleteCar }) => {
   const { formatDate, formatDistance, settings, distanceUnits } = useSettings();
   const [open, setOpen] = useState(false);
   const [editingCar, setEditingCar] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [availableModels, setAvailableModels] = useState([]);
   const [formData, setFormData] = useState({
     brand: '',
@@ -167,9 +169,14 @@ const CarsPage = React.memo(({ cars, onAddCar, onUpdateCar }) => {
                       </Typography>
                       <Chip label={car.year} size="small" />
                     </Box>
-                    <IconButton size="small" onClick={() => handleOpen(car)}>
-                      <Edit />
-                    </IconButton>
+                    <Box>
+                      <IconButton size="small" onClick={() => handleOpen(car)}>
+                        <Edit />
+                      </IconButton>
+                      <IconButton size="small" color="error" onClick={() => setDeleteConfirm(car)}>
+                        <Delete />
+                      </IconButton>
+                    </Box>
                   </Box>
                   
                   <List dense>
@@ -225,6 +232,29 @@ const CarsPage = React.memo(({ cars, onAddCar, onUpdateCar }) => {
       >
         <Add />
       </Fab>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteConfirm} onClose={() => setDeleteConfirm(null)}>
+        <DialogTitle>Delete Car</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete {deleteConfirm?.brand} {deleteConfirm?.model}? This will also remove all associated maintenance records and diagnostics.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteConfirm(null)}>Cancel</Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={() => {
+              onDeleteCar(deleteConfirm.id);
+              setDeleteConfirm(null);
+            }}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Add/Edit Car Dialog */}
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>

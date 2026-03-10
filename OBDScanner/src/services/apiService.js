@@ -1,7 +1,6 @@
 // REST API service for OBDScanner mobile app
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// TODO: Update this to your backend URL
 const API_BASE_URL = 'http://10.0.2.2:8080/api'; // Android emulator → host localhost
 
 const TOKEN_KEY = 'carlogix_token';

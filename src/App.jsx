@@ -27,6 +27,7 @@ function App() {
     logout,
     addCar,
     updateCar,
+    deleteCar,
     addMaintenanceRecord,
     updateMaintenanceRecord,
     deleteMaintenanceRecord,
@@ -74,6 +75,7 @@ function App() {
                   cars={cars}
                   onAddCar={addCar}
                   onUpdateCar={updateCar}
+                  onDeleteCar={deleteCar}
                 />
               );
             case 'maintenance':

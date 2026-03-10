@@ -119,7 +119,7 @@ src/
 
 ## Docker
 
-### Services (docker-compose.new.yml)
+### Services (docker-compose.yml)
 
 | Service | Container | Port | Description |
 |---------|-----------|------|-------------|
