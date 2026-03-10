@@ -183,10 +183,9 @@ export const useCarLogixApi = () => {
     }
   };
 
-  const scanForErrors = async (carId) => {
+  const scanForErrors = async (carId, scannedCodes = []) => {
     // Submit diagnostic codes scanned from OBD — the backend auto-populates
     // definitions and suggested fixes from the OBD2 SQLite database
-    const scannedCodes = ['P0300', 'P0171', 'P0420'];
     const vehicle = cars.find(c => c.id === carId);
 
     const results = [];

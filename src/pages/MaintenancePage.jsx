@@ -43,7 +43,7 @@ import {
   Download
 } from '@mui/icons-material';
 import { useSettings } from '../contexts/SettingsContext';
-import { serviceTypes } from '../data/mockData';
+import { serviceTypes } from '../data/carData';
 
 const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenanceRecord, onUpdateMaintenanceRecord }) => {
   const { formatDate, formatCurrency, formatDistance, settings, distanceUnits } = useSettings();

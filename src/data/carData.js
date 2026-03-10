@@ -76,3 +76,19 @@ export const getBrandNames = () => {
 export const getModelsForBrand = (brand) => {
   return carBrands[brand] || [];
 };
+
+// Service types for maintenance dropdown
+export const serviceTypes = [
+  'Oil Change',
+  'Tire Rotation',
+  'Brake Service',
+  'Transmission Service',
+  'Engine Tune-up',
+  'Air Filter',
+  'Cabin Filter',
+  'Battery Replacement',
+  'Spark Plugs',
+  'Coolant Flush',
+  'Inspection',
+  'Other'
+];
