@@ -10,11 +10,11 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#4f46e5"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.OBDScanner"
+      "bundleIdentifier": "com.carlogix.obdscanner"
     },
     "android": {
       "adaptiveIcon": {
@@ -28,15 +28,9 @@
         "android.permission.BLUETOOTH_CONNECT",
         "android.permission.BLUETOOTH_SCAN",
         "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.BLUETOOTH",
-        "android.permission.BLUETOOTH_ADMIN",
-        "android.permission.BLUETOOTH_CONNECT",
-        "android.permission.BLUETOOTH_SCAN",
-        "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION"
       ],
-      "package": "com.anonymous.OBDScanner"
+      "package": "com.carlogix.obdscanner"
     },
     "web": {
       "favicon": "./assets/favicon.png"

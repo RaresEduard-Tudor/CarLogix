@@ -14,12 +14,6 @@ import {
   MenuItem,
   Chip,
   IconButton,
-  Avatar,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  List,
-  Paper,
   Fab,
   FormControl,
   InputLabel,
@@ -30,9 +24,6 @@ import {
   Edit,
   Delete,
   DirectionsCar,
-  Close,
-  CalendarToday,
-  Speed
 } from '@mui/icons-material';
 import { useSettings } from '../contexts/SettingsContext';
 import { getBrandNames, getModelsForBrand, carColors } from '../data/carData';
@@ -122,13 +113,13 @@ const CarsPage = React.memo(({ cars, onAddCar, onUpdateCar, onDeleteCar }) => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
         <Box>
-          <Typography variant="h4" gutterBottom>
+          <Typography variant="h4" fontWeight={700}>
             My Cars
           </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Manage your vehicle profiles and basic information.
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Manage your vehicle profiles and information
           </Typography>
         </Box>
         <Button
@@ -143,12 +134,18 @@ const CarsPage = React.memo(({ cars, onAddCar, onUpdateCar, onDeleteCar }) => {
 
       {cars.length === 0 ? (
         <Card>
-          <CardContent sx={{ textAlign: 'center', py: 6 }}>
-            <DirectionsCar sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-            <Typography variant="h6" gutterBottom>
+          <CardContent sx={{ textAlign: 'center', py: 8 }}>
+            <Box sx={{
+              width: 72, height: 72, borderRadius: 3, mx: 'auto', mb: 2,
+              background: 'linear-gradient(135deg, #4f46e5, #0d9488)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <DirectionsCar sx={{ fontSize: 36, color: '#fff' }} />
+            </Box>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
               No cars added yet
             </Typography>
-            <Typography variant="body2" color="text.secondary" paragraph>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 360, mx: 'auto' }}>
               Add your first car to start tracking maintenance and diagnostics.
             </Typography>
             <Button variant="contained" startIcon={<Add />} onClick={() => handleOpen()}>
@@ -157,60 +154,60 @@ const CarsPage = React.memo(({ cars, onAddCar, onUpdateCar, onDeleteCar }) => {
           </CardContent>
         </Card>
       ) : (
-        <Grid container spacing={3}>
+        <Grid container spacing={2.5}>
           {cars.map((car) => (
-            <Grid item xs={12} md={6} lg={4} key={car.id}>
-              <Card>
-                <CardContent>
+            <Grid size={{ xs: 12, md: 6, lg: 4 }} key={car.id}>
+              <Card sx={{ overflow: 'visible' }}>
+                {/* Colored top accent */}
+                <Box sx={{
+                  height: 4, borderRadius: '16px 16px 0 0',
+                  background: 'linear-gradient(90deg, #4f46e5, #0d9488)',
+                }} />
+                <CardContent sx={{ pt: 2.5 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                     <Box>
-                      <Typography variant="h6" gutterBottom>
+                      <Typography variant="h6" fontWeight={700} lineHeight={1.3}>
                         {car.brand} {car.model}
                       </Typography>
-                      <Chip label={car.year} size="small" />
+                      <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5 }}>
+                        <Chip label={car.year} size="small" variant="outlined" />
+                        {car.color && (
+                          <Chip label={car.color} size="small" variant="outlined" />
+                        )}
+                      </Box>
                     </Box>
-                    <Box>
-                      <IconButton size="small" onClick={() => handleOpen(car)}>
-                        <Edit />
+                    <Box sx={{ display: 'flex', gap: 0.25 }}>
+                      <IconButton size="small" onClick={() => handleOpen(car)} sx={{ color: 'primary.main' }}>
+                        <Edit fontSize="small" />
                       </IconButton>
-                      <IconButton size="small" color="error" onClick={() => setDeleteConfirm(car)}>
-                        <Delete />
+                      <IconButton size="small" onClick={() => setDeleteConfirm(car)} sx={{ color: 'error.main' }}>
+                        <Delete fontSize="small" />
                       </IconButton>
                     </Box>
                   </Box>
-                  
-                  <List dense>
-                    <ListItem>
-                      <ListItemText
-                        primary="VIN"
-                        secondary={car.vin}
-                      />
-                    </ListItem>
+
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ width: 60, flexShrink: 0 }}>VIN</Typography>
+                      <Typography variant="body2" fontWeight={500} sx={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
+                        {car.vin}
+                      </Typography>
+                    </Box>
                     {car.mileage && (
-                      <ListItem>
-                        <Speed sx={{ mr: 1, fontSize: 16 }} />
-                        <ListItemText
-                          primary="Mileage"
-                          secondary={formatDistance(car.mileage)}
-                        />
-                      </ListItem>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ width: 60, flexShrink: 0 }}>Mileage</Typography>
+                        <Typography variant="body2" fontWeight={500}>
+                          {formatDistance(car.mileage)}
+                        </Typography>
+                      </Box>
                     )}
-                    {car.color && (
-                      <ListItem>
-                        <ListItemText
-                          primary="Color"
-                          secondary={car.color}
-                        />
-                      </ListItem>
-                    )}
-                    <ListItem>
-                      <CalendarToday sx={{ mr: 1, fontSize: 16 }} />
-                      <ListItemText
-                        primary="Added"
-                        secondary={formatDate(car.addedDate)}
-                      />
-                    </ListItem>
-                  </List>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ width: 60, flexShrink: 0 }}>Added</Typography>
+                      <Typography variant="body2" fontWeight={500}>
+                        {formatDate(car.addedDate)}
+                      </Typography>
+                    </Box>
+                  </Box>
                 </CardContent>
               </Card>
             </Grid>

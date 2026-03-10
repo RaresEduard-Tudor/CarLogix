@@ -1,4 +1,5 @@
 import BluetoothService from './bluetoothService';
+import { getDTCDescription, getDTCSeverity } from '../data/dtcDatabase';
 
 class OBDService {
   constructor() {
@@ -248,35 +249,17 @@ class OBDService {
   }
 
   /**
-   * Get DTC description (simplified lookup)
+   * Get DTC description from database
    */
   getDTCDescription(code) {
-    const descriptions = {
-      'P0420': 'Catalyst System Efficiency Below Threshold (Bank 1)',
-      'P0171': 'System Too Lean (Bank 1)',
-      'P0300': 'Random/Multiple Cylinder Misfire Detected',
-      'P0301': 'Cylinder 1 Misfire Detected',
-      'P0302': 'Cylinder 2 Misfire Detected',
-      'P0303': 'Cylinder 3 Misfire Detected',
-      'P0304': 'Cylinder 4 Misfire Detected',
-      'P0401': 'Exhaust Gas Recirculation Flow Insufficient Detected',
-      'P0442': 'Evaporative Emission Control System Leak Detected (small leak)',
-      'P0456': 'Evaporative Emission Control System Leak Detected (very small leak)',
-    };
-    
-    return descriptions[code] || 'Unknown diagnostic trouble code';
+    return getDTCDescription(code);
   }
 
   /**
-   * Get DTC severity level
+   * Get DTC severity level from database
    */
   getDTCSeverity(code) {
-    const highSeverity = ['P0300', 'P0301', 'P0302', 'P0303', 'P0304', 'P0171'];
-    const mediumSeverity = ['P0420', 'P0401', 'P0442'];
-    
-    if (highSeverity.includes(code)) return 'high';
-    if (mediumSeverity.includes(code)) return 'medium';
-    return 'low';
+    return getDTCSeverity(code);
   }
 
   /**

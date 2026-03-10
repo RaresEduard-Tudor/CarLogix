@@ -65,13 +65,12 @@ const SettingsPage = React.memo(() => {
 
   return (
     <Box>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <SettingsIcon />
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h4" fontWeight={700}>
           Settings
         </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Customize your CarLogix experience with units, currency, and display preferences.
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+          Customize your CarLogix experience with units, currency, and display preferences
         </Typography>
       </Box>
 
@@ -85,9 +84,9 @@ const SettingsPage = React.memo(() => {
         </Alert>
       )}
 
-      <Grid container spacing={3}>
+      <Grid container spacing={2.5}>
         {/* Currency Settings */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -129,7 +128,7 @@ const SettingsPage = React.memo(() => {
         </Grid>
 
         {/* Distance Units Settings */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -168,7 +167,7 @@ const SettingsPage = React.memo(() => {
         </Grid>
 
         {/* Date Format Settings */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -209,7 +208,7 @@ const SettingsPage = React.memo(() => {
         </Grid>
 
         {/* Display Preferences */}
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -244,7 +243,7 @@ const SettingsPage = React.memo(() => {
         </Grid>
 
         {/* Current Settings Summary */}
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -253,7 +252,7 @@ const SettingsPage = React.memo(() => {
               </Typography>
               
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
                     <Typography variant="body2" color="text.secondary">Currency</Typography>
                     <Typography variant="h6">
@@ -261,7 +260,7 @@ const SettingsPage = React.memo(() => {
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
                     <Typography variant="body2" color="text.secondary">Distance</Typography>
                     <Typography variant="h6">
@@ -269,7 +268,7 @@ const SettingsPage = React.memo(() => {
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
                     <Typography variant="body2" color="text.secondary">Theme</Typography>
                     <Typography variant="h6">
@@ -277,7 +276,7 @@ const SettingsPage = React.memo(() => {
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                   <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
                     <Typography variant="body2" color="text.secondary">Date Format</Typography>
                     <Typography variant="h6">
@@ -291,7 +290,7 @@ const SettingsPage = React.memo(() => {
         </Grid>
 
         {/* Reset Settings */}
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom color="warning.main">

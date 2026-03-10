@@ -9,7 +9,10 @@ import {
   FlatList,
   ActivityIndicator,
   Modal,
+  Platform,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import Colors from '../config/colors';
 import BluetoothService from '../obd/bluetoothService';
 import OBDService from '../obd/obdService';
 import { saveDiagnostic } from '../services/apiService';
@@ -176,10 +179,19 @@ export default function OBDScannerScreen({ selectedCar, onBackToCarSelection }) 
 
   const getSeverityColor = (severity) => {
     switch (severity) {
-      case 'high': return '#f44336';
-      case 'medium': return '#ff9800';
-      case 'low': return '#4caf50';
-      default: return '#757575';
+      case 'high': return Colors.error;
+      case 'medium': return Colors.warning;
+      case 'low': return Colors.success;
+      default: return Colors.textMuted;
+    }
+  };
+
+  const getSeverityGradient = (severity) => {
+    switch (severity) {
+      case 'high': return Colors.gradientDanger;
+      case 'medium': return [Colors.warning, '#f59e0b'];
+      case 'low': return Colors.gradientSecondary;
+      default: return [Colors.textMuted, Colors.textMuted];
     }
   };
 
@@ -187,137 +199,174 @@ export default function OBDScannerScreen({ selectedCar, onBackToCarSelection }) 
     <TouchableOpacity 
       style={styles.deviceItem}
       onPress={() => connectToDevice(item)}
+      activeOpacity={0.7}
     >
-      <Text style={styles.deviceName}>{item.name || 'Unknown Device'}</Text>
-      <Text style={styles.deviceAddress}>{item.address}</Text>
+      <View style={styles.deviceIconCircle}>
+        <Text style={styles.deviceIcon}>📡</Text>
+      </View>
+      <View style={styles.deviceInfo}>
+        <Text style={styles.deviceName}>{item.name || 'Unknown Device'}</Text>
+        <Text style={styles.deviceAddress}>{item.address}</Text>
+      </View>
     </TouchableOpacity>
   );
 
   const renderErrorCode = ({ item }) => (
-    <View style={[styles.errorCodeItem, { borderLeftColor: getSeverityColor(item.severity) }]}>
-      <View style={styles.errorCodeHeader}>
-        <Text style={styles.errorCode}>{item.code}</Text>
-        <View style={[styles.severityBadge, { backgroundColor: getSeverityColor(item.severity) }]}>
-          <Text style={styles.severityText}>{item.severity.toUpperCase()}</Text>
+    <View style={styles.errorCodeItem}>
+      <LinearGradient
+        colors={getSeverityGradient(item.severity)}
+        style={styles.severityAccent}
+      />
+      <View style={styles.errorCodeContent}>
+        <View style={styles.errorCodeHeader}>
+          <Text style={styles.errorCode}>{item.code}</Text>
+          <View style={[styles.severityBadge, { backgroundColor: getSeverityColor(item.severity) + '18' }]}>
+            <Text style={[styles.severityText, { color: getSeverityColor(item.severity) }]}>
+              {item.severity.toUpperCase()}
+            </Text>
+          </View>
         </View>
+        <Text style={styles.errorDescription}>{item.description}</Text>
       </View>
-      <Text style={styles.errorDescription}>{item.description}</Text>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      {/* Header */}
+      <LinearGradient colors={Colors.gradientPrimary} style={styles.header}>
         <View style={styles.headerTop}>
-          <TouchableOpacity onPress={onBackToCarSelection} style={styles.backButton}>
+          <TouchableOpacity onPress={onBackToCarSelection} style={styles.backButton} activeOpacity={0.7}>
             <Text style={styles.backButtonText}>← Back</Text>
           </TouchableOpacity>
-          <View style={styles.headerInfo}>
-            <Text style={styles.carInfo}>
+          <View style={styles.carBadge}>
+            <Text style={styles.carBadgeText}>
               {selectedCar.year} {selectedCar.brand} {selectedCar.model}
             </Text>
           </View>
         </View>
-        <Text style={styles.title}>🚗 OBD Scanner</Text>
-        <Text style={styles.subtitle}>Bluetooth OBD-II Diagnostic Tool</Text>
-      </View>
+        <Text style={styles.title}>OBD-II Scanner</Text>
+        <Text style={styles.subtitle}>Bluetooth Diagnostic Tool</Text>
+      </LinearGradient>
 
-      <ScrollView style={styles.content}>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Connection Status */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Connection Status</Text>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Connection</Text>
           {connectedDevice ? (
-            <View style={styles.connectionStatus}>
-              <Text style={styles.connectedText}>🟢 Connected to {connectedDevice.name}</Text>
-              <TouchableOpacity style={styles.disconnectButton} onPress={disconnect}>
-                <Text style={styles.disconnectButtonText}>Disconnect</Text>
+            <View>
+              <View style={styles.statusRow}>
+                <View style={[styles.statusDot, styles.statusConnected]} />
+                <Text style={styles.connectedText}>Connected to {connectedDevice.name}</Text>
+              </View>
+              <TouchableOpacity style={styles.dangerButton} onPress={disconnect} activeOpacity={0.8}>
+                <Text style={styles.dangerButtonText}>Disconnect</Text>
               </TouchableOpacity>
             </View>
           ) : (
-            <View style={styles.connectionStatus}>
-              <Text style={styles.disconnectedText}>🔴 Not Connected</Text>
-              <TouchableOpacity 
-                style={[styles.scanButton, isScanning && styles.scanButtonDisabled]}
+            <View>
+              <View style={styles.statusRow}>
+                <View style={[styles.statusDot, styles.statusDisconnected]} />
+                <Text style={styles.disconnectedText}>Not Connected</Text>
+              </View>
+              <TouchableOpacity
+                style={[styles.primaryButton, isScanning && styles.buttonDisabled]}
                 onPress={scanForDevices}
                 disabled={isScanning}
+                activeOpacity={0.8}
               >
-                <Text style={styles.scanButtonText}>
-                  {isScanning ? '⏳ Scanning...' : '🔍 Scan for Devices'}
-                </Text>
+                <LinearGradient colors={Colors.gradientPrimary} style={styles.gradientButton}>
+                  <Text style={styles.primaryButtonText}>
+                    {isScanning ? 'Scanning...' : 'Scan for Devices'}
+                  </Text>
+                </LinearGradient>
               </TouchableOpacity>
             </View>
           )}
         </View>
 
-        {/* Vehicle Data */}
+        {/* Live Data */}
         {connectedDevice && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Live Data</Text>
-            <View style={styles.dataContainer}>
-              <View style={styles.dataItem}>
-                <Text style={styles.dataLabel}>Speed</Text>
-                <Text style={styles.dataValue}>
-                  {vehicleData.speed !== null ? `${vehicleData.speed} km/h` : '--'}
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Live Data</Text>
+            <View style={styles.gaugeRow}>
+              <View style={styles.gauge}>
+                <Text style={styles.gaugeValue}>
+                  {vehicleData.speed !== null ? vehicleData.speed : '--'}
                 </Text>
+                <Text style={styles.gaugeUnit}>km/h</Text>
+                <Text style={styles.gaugeLabel}>Speed</Text>
               </View>
-              <View style={styles.dataItem}>
-                <Text style={styles.dataLabel}>RPM</Text>
-                <Text style={styles.dataValue}>
-                  {vehicleData.rpm !== null ? `${vehicleData.rpm}` : '--'}
+              <View style={styles.gaugeDivider} />
+              <View style={styles.gauge}>
+                <Text style={styles.gaugeValue}>
+                  {vehicleData.rpm !== null ? vehicleData.rpm : '--'}
                 </Text>
+                <Text style={styles.gaugeUnit}>rpm</Text>
+                <Text style={styles.gaugeLabel}>Engine</Text>
               </View>
             </View>
-            <TouchableOpacity style={styles.refreshButton} onPress={readVehicleData}>
-              <Text style={styles.refreshButtonText}>🔄 Refresh Data</Text>
+            <TouchableOpacity style={styles.secondaryButton} onPress={readVehicleData} activeOpacity={0.8}>
+              <Text style={styles.secondaryButtonText}>Refresh Data</Text>
             </TouchableOpacity>
           </View>
         )}
 
         {/* Diagnostic Scan */}
         {connectedDevice && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Diagnostic Scan</Text>
-            
-            <TouchableOpacity 
-              style={[styles.scanButton, isReadingCodes && styles.scanButtonDisabled]}
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Diagnostics</Text>
+            <TouchableOpacity
+              style={[styles.primaryButton, isReadingCodes && styles.buttonDisabled]}
               onPress={readErrorCodes}
               disabled={isReadingCodes}
+              activeOpacity={0.8}
             >
-              <Text style={styles.scanButtonText}>
-                {isReadingCodes ? '⏳ Reading Codes...' : '🔍 Scan for Error Codes'}
-              </Text>
+              <LinearGradient colors={Colors.gradientSecondary} style={styles.gradientButton}>
+                <Text style={styles.primaryButtonText}>
+                  {isReadingCodes ? 'Reading Codes...' : 'Scan for Error Codes'}
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
 
             {errorCodes.length > 0 && (
-              <TouchableOpacity style={styles.clearButton} onPress={clearErrorCodes}>
-                <Text style={styles.clearButtonText}>🗑️ Clear Error Codes</Text>
+              <TouchableOpacity style={styles.dangerButton} onPress={clearErrorCodes} activeOpacity={0.8}>
+                <Text style={styles.dangerButtonText}>Clear Error Codes</Text>
               </TouchableOpacity>
             )}
           </View>
         )}
 
-        {/* Error Codes Results */}
+        {/* Error Code Results */}
         {errorCodes.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
-              Error Codes ({errorCodes.length})
-            </Text>
+            <View style={styles.sectionTitleRow}>
+              <Text style={styles.cardTitle}>Error Codes</Text>
+              <View style={styles.countBadge}>
+                <Text style={styles.countBadgeText}>{errorCodes.length}</Text>
+              </View>
+            </View>
             <FlatList
               data={errorCodes}
               renderItem={renderErrorCode}
               keyExtractor={(item, index) => `${item.code}-${index}`}
-              style={styles.errorCodesList}
               scrollEnabled={false}
             />
           </View>
         )}
 
+        {/* All Clear */}
         {connectedDevice && !isReadingCodes && errorCodes.length === 0 && (
-          <View style={styles.noErrorsContainer}>
-            <Text style={styles.noErrorsText}>✅ No error codes found</Text>
-            <Text style={styles.noErrorsSubtext}>Your vehicle appears to be running normally</Text>
+          <View style={styles.allClearContainer}>
+            <LinearGradient colors={Colors.gradientSecondary} style={styles.allClearCircle}>
+              <Text style={styles.allClearIcon}>✓</Text>
+            </LinearGradient>
+            <Text style={styles.allClearTitle}>All Clear</Text>
+            <Text style={styles.allClearSubtext}>No error codes found — your vehicle is running normally</Text>
           </View>
         )}
+
+        <View style={{ height: 30 }} />
       </ScrollView>
 
       {/* Device Selection Modal */}
@@ -329,6 +378,7 @@ export default function OBDScannerScreen({ selectedCar, onBackToCarSelection }) 
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
+            <View style={styles.modalHandle} />
             <Text style={styles.modalTitle}>Select OBD Device</Text>
             {devices.length > 0 ? (
               <FlatList
@@ -338,11 +388,15 @@ export default function OBDScannerScreen({ selectedCar, onBackToCarSelection }) 
                 style={styles.deviceList}
               />
             ) : (
-              <Text style={styles.noDevicesText}>No devices found</Text>
+              <View style={styles.emptyDevices}>
+                <Text style={styles.emptyDevicesIcon}>📡</Text>
+                <Text style={styles.noDevicesText}>No devices found</Text>
+              </View>
             )}
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.modalCloseButton}
               onPress={() => setShowDeviceModal(false)}
+              activeOpacity={0.8}
             >
               <Text style={styles.modalCloseButtonText}>Cancel</Text>
             </TouchableOpacity>
@@ -353,8 +407,10 @@ export default function OBDScannerScreen({ selectedCar, onBackToCarSelection }) 
       {/* Loading Overlay */}
       {isConnecting && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#1976d2" />
-          <Text style={styles.loadingText}>Connecting...</Text>
+          <View style={styles.loadingCard}>
+            <ActivityIndicator size="large" color={Colors.primary} />
+            <Text style={styles.loadingText}>Connecting...</Text>
+          </View>
         </View>
       )}
     </View>
@@ -364,171 +420,214 @@ export default function OBDScannerScreen({ selectedCar, onBackToCarSelection }) 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: Colors.background,
   },
   header: {
-    backgroundColor: '#1976d2',
-    paddingTop: 50,
-    paddingBottom: 20,
+    paddingTop: 54,
+    paddingBottom: 24,
     paddingHorizontal: 20,
   },
   headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
+    justifyContent: 'space-between',
+    marginBottom: 16,
   },
   backButton: {
     paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 6,
+    borderRadius: 20,
   },
   backButtonText: {
-    color: 'white',
-    fontSize: 16,
+    color: '#fff',
+    fontSize: 15,
     fontWeight: '600',
   },
-  headerInfo: {
-    flex: 1,
-    alignItems: 'center',
+  carBadge: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 20,
   },
-  carInfo: {
-    color: 'white',
-    fontSize: 16,
+  carBadgeText: {
+    color: '#fff',
+    fontSize: 13,
     fontWeight: '600',
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 5,
+    fontSize: 26,
+    fontWeight: '800',
+    color: '#fff',
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
-    color: 'white',
-    opacity: 0.9,
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.8)',
     textAlign: 'center',
+    marginTop: 4,
   },
   content: {
     flex: 1,
+    padding: 16,
+  },
+  card: {
+    backgroundColor: Colors.surface,
+    borderRadius: 16,
     padding: 20,
-  },
-  section: {
-    marginBottom: 25,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 12,
-  },
-  connectionStatus: {
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 8,
-    elevation: 2,
+    marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  cardTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: Colors.text,
+    marginBottom: 14,
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  statusDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  statusConnected: {
+    backgroundColor: Colors.success,
+  },
+  statusDisconnected: {
+    backgroundColor: Colors.error,
   },
   connectedText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
-    color: '#2e7d32',
-    marginBottom: 10,
+    color: Colors.success,
   },
   disconnectedText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
-    color: '#d32f2f',
-    marginBottom: 10,
+    color: Colors.textSecondary,
   },
-  scanButton: {
-    backgroundColor: '#4caf50',
-    padding: 12,
-    borderRadius: 6,
+  primaryButton: {
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  gradientButton: {
+    paddingVertical: 14,
+    alignItems: 'center',
+    borderRadius: 12,
+  },
+  primaryButtonText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  secondaryButton: {
+    backgroundColor: Colors.surfaceAlt,
+    paddingVertical: 12,
+    borderRadius: 12,
     alignItems: 'center',
   },
-  scanButtonDisabled: {
-    backgroundColor: '#c8e6c9',
-  },
-  scanButtonText: {
-    color: 'white',
+  secondaryButtonText: {
+    color: Colors.primary,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
   },
-  disconnectButton: {
-    backgroundColor: '#f44336',
-    padding: 10,
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  disconnectButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  dataContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 8,
-    elevation: 2,
-    marginBottom: 10,
-  },
-  dataItem: {
-    alignItems: 'center',
-  },
-  dataLabel: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 5,
-  },
-  dataValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  refreshButton: {
-    backgroundColor: '#2196f3',
-    padding: 10,
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  refreshButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  clearButton: {
-    backgroundColor: '#f44336',
-    padding: 12,
-    borderRadius: 6,
+  dangerButton: {
+    backgroundColor: Colors.errorLight,
+    paddingVertical: 12,
+    borderRadius: 12,
     alignItems: 'center',
     marginTop: 10,
   },
-  clearButtonText: {
-    color: 'white',
+  dangerButtonText: {
+    color: Colors.error,
     fontSize: 14,
+    fontWeight: '700',
+  },
+  buttonDisabled: {
+    opacity: 0.5,
+  },
+  gaugeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  gauge: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  gaugeValue: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: Colors.text,
+    fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace' }),
+  },
+  gaugeUnit: {
+    fontSize: 12,
+    color: Colors.textSecondary,
     fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginTop: 2,
   },
-  errorCodesList: {
-    maxHeight: 300,
+  gaugeLabel: {
+    fontSize: 13,
+    color: Colors.textMuted,
+    marginTop: 4,
   },
+  gaugeDivider: {
+    width: 1,
+    height: 50,
+    backgroundColor: Colors.border,
+  },
+  section: {
+    marginBottom: 16,
+  },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  countBadge: {
+    backgroundColor: Colors.error,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    marginLeft: 10,
+  },
+  countBadgeText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  // Error code styles
   errorCodeItem: {
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 10,
-    borderLeftWidth: 4,
-    elevation: 2,
+    backgroundColor: Colors.surface,
+    borderRadius: 14,
+    marginBottom: 12,
+    overflow: 'hidden',
+    flexDirection: 'row',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  severityAccent: {
+    width: 5,
+  },
+  errorCodeContent: {
+    flex: 1,
+    padding: 16,
   },
   errorCodeHeader: {
     flexDirection: 'row',
@@ -538,109 +637,171 @@ const styles = StyleSheet.create({
   },
   errorCode: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    fontFamily: 'monospace',
+    fontWeight: '700',
+    color: Colors.text,
+    fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace' }),
   },
   severityBadge: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
   },
   severityText: {
-    color: 'white',
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
   errorDescription: {
     fontSize: 14,
-    color: '#666',
-    lineHeight: 18,
+    color: Colors.textSecondary,
+    lineHeight: 20,
   },
-  noErrorsContainer: {
+  // All clear
+  allClearContainer: {
     alignItems: 'center',
-    padding: 30,
+    paddingVertical: 40,
   },
-  noErrorsText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#4caf50',
-    marginBottom: 8,
+  allClearCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
   },
-  noErrorsSubtext: {
+  allClearIcon: {
+    fontSize: 32,
+    color: '#fff',
+    fontWeight: '800',
+  },
+  allClearTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: Colors.success,
+    marginBottom: 6,
+  },
+  allClearSubtext: {
     fontSize: 14,
-    color: '#666',
+    color: Colors.textSecondary,
     textAlign: 'center',
+    maxWidth: 260,
   },
+  // Modal
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 10,
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     padding: 20,
-    width: '90%',
     maxHeight: '70%',
+  },
+  modalHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: Colors.border,
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 16,
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '700',
+    color: Colors.text,
     textAlign: 'center',
-    marginBottom: 15,
+    marginBottom: 16,
   },
   deviceList: {
     maxHeight: 300,
   },
   deviceItem: {
-    backgroundColor: '#f5f5f5',
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: Colors.surfaceAlt,
+    padding: 16,
+    borderRadius: 12,
     marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  deviceIconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  deviceIcon: {
+    fontSize: 18,
+  },
+  deviceInfo: {
+    flex: 1,
   },
   deviceName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
+    color: Colors.text,
+    marginBottom: 3,
   },
   deviceAddress: {
-    fontSize: 14,
-    color: '#666',
-    fontFamily: 'monospace',
+    fontSize: 13,
+    color: Colors.textMuted,
+    fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace' }),
+  },
+  emptyDevices: {
+    alignItems: 'center',
+    paddingVertical: 30,
+  },
+  emptyDevicesIcon: {
+    fontSize: 36,
+    marginBottom: 10,
   },
   noDevicesText: {
     textAlign: 'center',
-    color: '#666',
-    padding: 20,
+    color: Colors.textSecondary,
+    fontSize: 15,
   },
   modalCloseButton: {
-    backgroundColor: '#757575',
-    padding: 12,
-    borderRadius: 6,
+    backgroundColor: Colors.surfaceAlt,
+    paddingVertical: 14,
+    borderRadius: 12,
     alignItems: 'center',
-    marginTop: 15,
+    marginTop: 16,
   },
   modalCloseButtonText: {
-    color: 'white',
-    fontSize: 14,
+    color: Colors.textSecondary,
+    fontSize: 15,
     fontWeight: '600',
   },
+  // Loading
   loadingOverlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
     justifyContent: 'center',
     alignItems: 'center',
   },
+  loadingCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: 16,
+    padding: 30,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
   loadingText: {
-    color: 'white',
-    marginTop: 10,
+    color: Colors.text,
+    marginTop: 14,
     fontSize: 16,
+    fontWeight: '600',
   },
 });

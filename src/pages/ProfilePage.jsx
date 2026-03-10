@@ -11,27 +11,15 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Divider,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  IconButton,
   Chip,
-  Paper,
   Alert,
   TextField
 } from '@mui/material';
 import {
   Person,
-  Email,
-  CalendarToday,
   Security,
-  Help,
-  Info,
   VerifiedUser,
   DirectionsCar,
-  Settings
 } from '@mui/icons-material';
 import { useSettings } from '../contexts/SettingsContext';
 
@@ -117,179 +105,100 @@ const ProfilePage = React.memo(({ cars = [], maintenanceRecords = [], errorCodes
   }
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
-      {/* Profile Header */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Grid container spacing={3} alignItems="center">
-            <Grid item>
-              <Avatar
-                sx={{
-                  width: 80,
-                  height: 80,
-                  bgcolor: 'primary.main',
-                  fontSize: '2rem'
-                }}
-              >
-                {getAvatarInitials()}
-              </Avatar>
-            </Grid>
-            <Grid item xs>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-                <Typography variant="h4" component="h1">
+    <Box>
+      {/* Profile Header Card */}
+      <Card sx={{ mb: 3, overflow: 'visible' }}>
+        <Box sx={{
+          height: 100,
+          background: 'linear-gradient(135deg, #4f46e5, #0d9488)',
+          borderRadius: '16px 16px 0 0',
+        }} />
+        <CardContent sx={{ pt: 0, pb: 3 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'center', sm: 'flex-end' }, gap: 2, mt: -5 }}>
+            <Avatar sx={{
+              width: 80, height: 80, fontSize: '1.8rem', fontWeight: 700,
+              background: 'linear-gradient(135deg, #6366f1, #14b8a6)',
+              border: '4px solid', borderColor: 'background.paper',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            }}>
+              {getAvatarInitials()}
+            </Avatar>
+            <Box sx={{ textAlign: { xs: 'center', sm: 'left' }, flex: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: { xs: 'center', sm: 'flex-start' }, flexWrap: 'wrap' }}>
+                <Typography variant="h5" fontWeight={700}>
                   {currentUser.displayName || 'User'}
                 </Typography>
                 {currentUser.emailVerified && (
-                  <Chip
-                    icon={<VerifiedUser />}
-                    label="Verified"
-                    color="success"
-                    size="small"
-                  />
+                  <Chip icon={<VerifiedUser />} label="Verified" color="success" size="small" />
                 )}
               </Box>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+              <Typography variant="body2" color="text.secondary">
                 {currentUser.email}
               </Typography>
-            </Grid>
-          </Grid>
+            </Box>
+            <Button variant="outlined" size="small" onClick={() => setShowPasswordDialog(true)} startIcon={<Security />}>
+              Change Password
+            </Button>
+          </Box>
         </CardContent>
       </Card>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={2.5}>
         {/* Account Information */}
-        <Grid item xs={12} md={6}>
-          <Card>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Card sx={{ height: '100%' }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Person />
-                Account Information
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-              <List>
-                <ListItem>
-                  <ListItemIcon>
-                    <Email />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Email"
-                    secondary={currentUser.email}
-                  />
-                </ListItem>
-                <ListItem>
-                  <ListItemIcon>
-                    <CalendarToday />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Member Since"
-                    secondary={formatDate(currentUser.createdAt || currentUser.metadata?.creationTime)}
-                  />
-                </ListItem>
-                <ListItem>
-                  <ListItemIcon>
-                    <Security />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Account Security"
-                    secondary={currentUser.emailVerified ? 'Email verified' : 'Email not verified'}
-                  />
-                  <IconButton
-                    onClick={() => setShowPasswordDialog(true)}
-                    size="small"
-                  >
-                    <Security />
-                  </IconButton>
-                </ListItem>
-              </List>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <Person sx={{ fontSize: 20, color: 'primary.main' }} />
+                <Typography variant="h6" fontWeight={600}>Account Info</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Box>
+                  <Typography variant="caption" color="text.secondary">Email</Typography>
+                  <Typography variant="body2" fontWeight={500}>{currentUser.email}</Typography>
+                </Box>
+                <Box>
+                  <Typography variant="caption" color="text.secondary">Member Since</Typography>
+                  <Typography variant="body2" fontWeight={500}>
+                    {formatDate(currentUser.createdAt || currentUser.metadata?.creationTime)}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="caption" color="text.secondary">Security</Typography>
+                  <Typography variant="body2" fontWeight={500}>
+                    {currentUser.emailVerified ? 'Email verified' : 'Email not verified'}
+                  </Typography>
+                </Box>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
 
         {/* Quick Stats */}
-        <Grid item xs={12} md={6}>
-          <Card>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Card sx={{ height: '100%' }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <DirectionsCar />
-                Your CarLogix Stats
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
-                  <Paper sx={{ p: 2, textAlign: 'center' }}>
-                    <Typography variant="h4" color="primary">
-                      {carsCount}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Cars Registered
-                    </Typography>
-                  </Paper>
-                </Grid>
-                <Grid item xs={6}>
-                  <Paper sx={{ p: 2, textAlign: 'center' }}>
-                    <Typography variant="h4" color="secondary">
-                      {maintenanceCount}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Maintenance Records
-                    </Typography>
-                  </Paper>
-                </Grid>
-                <Grid item xs={6}>
-                  <Paper sx={{ p: 2, textAlign: 'center' }}>
-                    <Typography variant="h4" color="warning.main">
-                      {errorCodesCount}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Error Codes
-                    </Typography>
-                  </Paper>
-                </Grid>
-                <Grid item xs={6}>
-                  <Paper sx={{ p: 2, textAlign: 'center' }}>
-                    <Typography variant="h4" color="success.main">
-                      {daysActive}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Days Active
-                    </Typography>
-                  </Paper>
-                </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Quick Actions */}
-        <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Settings />
-                Quick Actions
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    startIcon={<Help />}
-                    sx={{ py: 2 }}
-                  >
-                    Help & Support
-                  </Button>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    startIcon={<Info />}
-                    sx={{ py: 2 }}
-                  >
-                    About CarLogix
-                  </Button>
-                </Grid>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <DirectionsCar sx={{ fontSize: 20, color: 'primary.main' }} />
+                <Typography variant="h6" fontWeight={600}>Your Stats</Typography>
+              </Box>
+              <Grid container spacing={1.5}>
+                {[
+                  { value: carsCount, label: 'Cars', gradient: 'linear-gradient(135deg, #4f46e5, #6366f1)' },
+                  { value: maintenanceCount, label: 'Records', gradient: 'linear-gradient(135deg, #0d9488, #14b8a6)' },
+                  { value: errorCodesCount, label: 'Errors', gradient: 'linear-gradient(135deg, #e11d48, #f43f5e)' },
+                  { value: daysActive, label: 'Days Active', gradient: 'linear-gradient(135deg, #0284c7, #38bdf8)' },
+                ].map((stat, i) => (
+                  <Grid size={6} key={i}>
+                    <Box sx={{
+                      p: 2, borderRadius: 2, textAlign: 'center',
+                      background: stat.gradient, color: '#fff',
+                    }}>
+                      <Typography variant="h5" fontWeight={700}>{stat.value}</Typography>
+                      <Typography variant="caption" sx={{ opacity: 0.85 }}>{stat.label}</Typography>
+                    </Box>
+                  </Grid>
+                ))}
               </Grid>
             </CardContent>
           </Card>

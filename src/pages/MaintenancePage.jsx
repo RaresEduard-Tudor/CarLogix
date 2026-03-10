@@ -193,13 +193,13 @@ const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenance
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
         <Box>
-          <Typography variant="h4" gutterBottom>
+          <Typography variant="h4" fontWeight={700}>
             Maintenance Records
           </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Track all your vehicle maintenance and service history.
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Track your vehicle service history
           </Typography>
         </Box>
         <Button
@@ -225,7 +225,7 @@ const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenance
           <Card sx={{ mb: 3 }}>
             <CardContent>
               <Grid container spacing={2} alignItems="center">
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <FormControl fullWidth>
                     <InputLabel>Filter by Car</InputLabel>
                     <Select
@@ -242,7 +242,7 @@ const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenance
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                     <Typography variant="body2" color="text.secondary">
                       Total Records: {filteredRecords.length}
@@ -268,12 +268,18 @@ const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenance
           {/* Maintenance Records Table */}
           {sortedRecords.length === 0 ? (
             <Card>
-              <CardContent sx={{ textAlign: 'center', py: 6 }}>
-                <Build sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-                <Typography variant="h6" gutterBottom>
+              <CardContent sx={{ textAlign: 'center', py: 8 }}>
+                <Box sx={{
+                  width: 72, height: 72, borderRadius: 3, mx: 'auto', mb: 2,
+                  background: 'linear-gradient(135deg, #0d9488, #14b8a6)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <Build sx={{ fontSize: 36, color: '#fff' }} />
+                </Box>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
                   No maintenance records yet
                 </Typography>
-                <Typography variant="body2" color="text.secondary" paragraph>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 360, mx: 'auto' }}>
                   Start tracking your vehicle maintenance to keep detailed service history.
                 </Typography>
                 <Button variant="contained" startIcon={<Add />} onClick={handleOpen}>
@@ -378,7 +384,7 @@ const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenance
         <DialogTitle>Add Maintenance Record</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormControl fullWidth required>
                 <InputLabel>Car</InputLabel>
                 <Select
@@ -394,7 +400,7 @@ const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenance
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth required>
                 <InputLabel>Service Type</InputLabel>
                 <Select
@@ -410,7 +416,7 @@ const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenance
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Date"
                 fullWidth
@@ -421,7 +427,7 @@ const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenance
                 InputLabelProps={{ shrink: true }}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 label="Description"
                 fullWidth
@@ -430,7 +436,7 @@ const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenance
                 placeholder="Brief description of the service performed"
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label={`Mileage (${distanceUnits[settings.distanceUnit]?.abbr || 'mi'})`}
                 fullWidth
@@ -441,7 +447,7 @@ const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenance
                 inputProps={{ min: 0 }}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Cost"
                 fullWidth
@@ -455,7 +461,7 @@ const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenance
                 }}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 label="Location"
                 fullWidth
@@ -464,7 +470,7 @@ const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenance
                 placeholder="Where was the service performed?"
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 label="Notes"
                 fullWidth
@@ -480,13 +486,13 @@ const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenance
             </Grid>
             
             {/* Reminder Settings */}
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography variant="h6" sx={{ mt: 2, mb: 1, display: 'flex', alignItems: 'center' }}>
                 <Alarm sx={{ mr: 1 }} />
                 Maintenance Reminders (Optional)
               </Typography>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label={`Remind me every (${distanceUnits[settings.distanceUnit]?.abbr || 'mi'})`}
                 fullWidth
@@ -498,9 +504,9 @@ const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenance
                 inputProps={{ min: 0 }}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <Grid container spacing={1}>
-                <Grid item xs={8}>
+                <Grid size={8}>
                   <TextField
                     label="Remind me every"
                     fullWidth
@@ -511,7 +517,7 @@ const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenance
                     inputProps={{ min: 0 }}
                   />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid size={4}>
                   <FormControl fullWidth>
                     <InputLabel>Unit</InputLabel>
                     <Select

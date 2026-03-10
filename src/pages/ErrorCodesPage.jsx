@@ -99,97 +99,61 @@ const ErrorCodesPage = React.memo(({ cars, errorCodes, onClearError }) => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
         <Box>
-          <Typography variant="h4" gutterBottom>
+          <Typography variant="h4" fontWeight={700}>
             Error Code History
           </Typography>
-          <Typography variant="body1" color="text.secondary">
-            View scanned error codes from your mobile OBD scanner app.
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            View scanned error codes from your mobile OBD scanner app
           </Typography>
         </Box>
       </Box>
 
       {/* Summary Stats */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box>
-                  <Typography color="text.secondary" gutterBottom>
-                    Total Scans
-                  </Typography>
-                  <Typography variant="h4">
-                    {totalScans}
-                  </Typography>
+      <Grid container spacing={2.5} sx={{ mb: 3 }}>
+        {[
+          { title: 'Total Scans', value: totalScans, Icon: Scanner, gradient: 'linear-gradient(135deg, #4f46e5, #6366f1)' },
+          { title: 'Active Scans', value: activeScans, Icon: Error, gradient: 'linear-gradient(135deg, #e11d48, #f43f5e)' },
+          { title: 'Resolved', value: resolvedScans, Icon: CheckCircle, gradient: 'linear-gradient(135deg, #0d9488, #14b8a6)' },
+          { title: 'Error Codes', value: totalErrorCodes, Icon: Info, gradient: 'linear-gradient(135deg, #d97706, #f59e0b)' },
+        ].map((stat, idx) => (
+          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={idx}>
+            <Card elevation={0} sx={{
+              background: stat.gradient, color: '#fff', border: 'none',
+              '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 8px 25px rgba(0,0,0,0.15)' },
+              transition: 'transform 0.2s, box-shadow 0.2s',
+            }}>
+              <CardContent sx={{ p: 2.5, '&:last-child': { pb: 2.5 } }}>
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                  <Box>
+                    <Typography variant="body2" sx={{ opacity: 0.85, mb: 0.5, fontWeight: 500 }}>{stat.title}</Typography>
+                    <Typography variant="h4" fontWeight={700}>{stat.value}</Typography>
+                  </Box>
+                  <Box sx={{ width: 44, height: 44, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <stat.Icon sx={{ fontSize: 24 }} />
+                  </Box>
                 </Box>
-                <Scanner sx={{ fontSize: 40, color: 'primary.main' }} />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box>
-                  <Typography color="text.secondary" gutterBottom>
-                    Active Scans
-                  </Typography>
-                  <Typography variant="h4" color="error.main">
-                    {activeScans}
-                  </Typography>
-                </Box>
-                <Error sx={{ fontSize: 40, color: 'error.main' }} />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box>
-                  <Typography color="text.secondary" gutterBottom>
-                    Resolved
-                  </Typography>
-                  <Typography variant="h4" color="success.main">
-                    {resolvedScans}
-                  </Typography>
-                </Box>
-                <CheckCircle sx={{ fontSize: 40, color: 'success.main' }} />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Box>
-                  <Typography color="text.secondary" gutterBottom>
-                    Error Codes
-                  </Typography>
-                  <Typography variant="h4">
-                    {totalErrorCodes}
-                  </Typography>
-                </Box>
-                <Info sx={{ fontSize: 40, color: 'warning.main' }} />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
       </Grid>
 
       {errorCodes.length === 0 ? (
         <Card>
-          <CardContent sx={{ textAlign: 'center', py: 6 }}>
-            <Scanner sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-            <Typography variant="h6" gutterBottom>
+          <CardContent sx={{ textAlign: 'center', py: 8 }}>
+            <Box sx={{
+              width: 72, height: 72, borderRadius: 3, mx: 'auto', mb: 2,
+              background: 'linear-gradient(135deg, #4f46e5, #6366f1)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Scanner sx={{ fontSize: 36, color: '#fff' }} />
+            </Box>
+            <Typography variant="h6" fontWeight={600} gutterBottom>
               No scans yet
             </Typography>
-            <Typography variant="body2" color="text.secondary" paragraph>
+            <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 360, mx: 'auto' }}>
               Use the mobile OBD Scanner app to scan your car for error codes.
               They will appear here automatically!
             </Typography>
@@ -198,9 +162,9 @@ const ErrorCodesPage = React.memo(({ cars, errorCodes, onClearError }) => {
       ) : (
         <>
           {/* Car Cards with Scan History */}
-          <Grid container spacing={3}>
+          <Grid container spacing={2.5}>
             {Object.values(scansByCar).map(({ car, scans }) => (
-              <Grid item xs={12} key={car.id}>
+              <Grid size={12} key={car.id}>
                 <Card>
                   <CardContent>
                     {/* Car Header */}

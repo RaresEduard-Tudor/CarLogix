@@ -7,7 +7,10 @@ import {
   FlatList,
   ActivityIndicator,
   Alert,
+  Platform,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import Colors from '../config/colors';
 import { getUserCars, logout } from '../services/apiService';
 
 export default function CarSelectionScreen({ user, onCarSelected, onLogout }) {
@@ -61,33 +64,51 @@ export default function CarSelectionScreen({ user, onCarSelected, onLogout }) {
     );
   };
 
-  const renderCarItem = ({ item }) => (
-    <TouchableOpacity
-      style={[
-        styles.carCard,
-        selectedCar?.id === item.id && styles.carCardSelected,
-      ]}
-      onPress={() => handleCarSelect(item)}
-    >
-      <Text style={styles.carName}>
-        {item.year} {item.brand} {item.model}
-      </Text>
-      {item.vin && (
-        <Text style={styles.carVin}>VIN: {item.vin}</Text>
-      )}
-      {item.licensePlate && (
-        <Text style={styles.carPlate}>Plate: {item.licensePlate}</Text>
-      )}
-      {selectedCar?.id === item.id && (
-        <Text style={styles.selectedBadge}>✓ Selected</Text>
-      )}
-    </TouchableOpacity>
-  );
+  const renderCarItem = ({ item }) => {
+    const isSelected = selectedCar?.id === item.id;
+    return (
+      <TouchableOpacity
+        style={[styles.carCard, isSelected && styles.carCardSelected]}
+        onPress={() => handleCarSelect(item)}
+        activeOpacity={0.7}
+      >
+        {/* Accent bar */}
+        <LinearGradient
+          colors={isSelected ? Colors.gradientPrimary : [Colors.border, Colors.border]}
+          style={styles.accentBar}
+        />
+        <View style={styles.carCardContent}>
+          <View style={styles.carCardRow}>
+            <Text style={styles.carName}>
+              {item.year} {item.brand} {item.model}
+            </Text>
+            {isSelected && (
+              <View style={styles.selectedBadge}>
+                <Text style={styles.selectedBadgeText}>Selected</Text>
+              </View>
+            )}
+          </View>
+          {item.vin && (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>VIN</Text>
+              <Text style={styles.carVin}>{item.vin}</Text>
+            </View>
+          )}
+          {item.licensePlate && (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Plate</Text>
+              <Text style={styles.carPlate}>{item.licensePlate}</Text>
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color={Colors.primary} />
         <Text style={styles.loadingText}>Loading your cars...</Text>
       </View>
     );
@@ -95,19 +116,24 @@ export default function CarSelectionScreen({ user, onCarSelected, onLogout }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>Select Your Car</Text>
-          <Text style={styles.subtitle}>Signed in as: {user.email}</Text>
+      {/* Header */}
+      <LinearGradient colors={Colors.gradientPrimary} style={styles.header}>
+        <View style={styles.headerRow}>
+          <View style={styles.headerLeft}>
+            <Text style={styles.title}>Select Your Car</Text>
+            <Text style={styles.subtitle}>{user.email}</Text>
+          </View>
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+            <Text style={styles.logoutText}>Sign Out</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Text style={styles.logoutText}>Sign Out</Text>
-        </TouchableOpacity>
-      </View>
+      </LinearGradient>
 
       {cars.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>🚗</Text>
+          <View style={styles.emptyIconCircle}>
+            <Text style={styles.emptyIcon}>🚗</Text>
+          </View>
           <Text style={styles.emptyText}>No cars found</Text>
           <Text style={styles.emptySubtext}>
             Add a car in the CarLogix web app first
@@ -128,48 +154,50 @@ export default function CarSelectionScreen({ user, onCarSelected, onLogout }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: Colors.background,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: Colors.background,
   },
   loadingText: {
     marginTop: 16,
-    fontSize: 16,
-    color: '#666',
+    fontSize: 15,
+    color: Colors.textSecondary,
   },
   header: {
+    paddingTop: 56,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+  },
+  headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    padding: 20,
-    paddingTop: 60,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+  },
+  headerLeft: {
+    flex: 1,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 26,
+    fontWeight: '800',
+    color: Colors.textOnPrimary,
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
+    color: 'rgba(255,255,255,0.75)',
     marginTop: 4,
   },
   logoutButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#FF3B30',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.15)',
   },
   logoutText: {
-    color: '#FF3B30',
+    color: Colors.textOnPrimary,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -177,38 +205,72 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   carCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: 14,
     marginBottom: 12,
-    borderWidth: 2,
-    borderColor: '#eee',
+    flexDirection: 'row',
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
   },
   carCardSelected: {
-    borderColor: '#007AFF',
-    backgroundColor: '#F0F8FF',
+    shadowOpacity: 0.12,
+    elevation: 5,
+  },
+  accentBar: {
+    width: 5,
+  },
+  carCardContent: {
+    flex: 1,
+    padding: 16,
+  },
+  carCardRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
   },
   carName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-  },
-  carVin: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
-  },
-  carPlate: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 2,
+    fontSize: 17,
+    fontWeight: '700',
+    color: Colors.text,
+    flex: 1,
   },
   selectedBadge: {
-    fontSize: 14,
-    color: '#007AFF',
+    backgroundColor: Colors.primaryFaint,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginLeft: 8,
+  },
+  selectedBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  detailLabel: {
+    fontSize: 12,
     fontWeight: '600',
-    marginTop: 8,
+    color: Colors.textMuted,
+    width: 40,
+    textTransform: 'uppercase',
+  },
+  carVin: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+  },
+  carPlate: {
+    fontSize: 13,
+    color: Colors.textSecondary,
   },
   emptyContainer: {
     flex: 1,
@@ -216,19 +278,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 40,
   },
+  emptyIconCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: Colors.primaryFaint,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
   emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
+    fontSize: 48,
   },
   emptyText: {
     fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '700',
+    color: Colors.text,
     marginBottom: 8,
   },
   emptySubtext: {
-    fontSize: 16,
-    color: '#666',
+    fontSize: 15,
+    color: Colors.textSecondary,
     textAlign: 'center',
   },
 });
