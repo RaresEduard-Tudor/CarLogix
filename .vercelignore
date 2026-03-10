@@ -1,0 +1,9 @@
+OBDScanner/
+backend/
+scripts/
+obd2_mcp/
+*.db
+Dockerfile
+Dockerfile.dev
+docker-compose*.yml
+nginx.conf
