@@ -45,7 +45,8 @@ class ApiService {
     const data = response.status === 204 ? null : await response.json();
 
     if (!response.ok) {
-      throw new Error(data?.error || 'Request failed');
+      const fieldErrors = data?.fields ? Object.values(data.fields).join(', ') : null;
+      throw new Error(fieldErrors || data?.error || 'Request failed');
     }
 
     return data;
