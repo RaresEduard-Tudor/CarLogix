@@ -199,6 +199,35 @@ mvn test -pl :carlogix-backend -Dtest=AuthServiceTest   # Single test class
 yarn lint                   # ESLint checks
 ```
 
+## CI/CD
+
+### Continuous Integration (`.github/workflows/ci.yml`)
+
+Runs on every push and pull request to `main`:
+
+1. **Backend tests** — `mvn test` with an ephemeral PostgreSQL service container
+2. **Frontend lint** — `yarn install && yarn lint`
+3. **Docker build** — Verifies `docker compose build` succeeds
+
+### Android APK Releases (`.github/workflows/android-release.yml`)
+
+Triggered when a version tag (`v*`) is pushed:
+
+1. Checks out the repository
+2. Sets up JDK 17 and Node.js 20
+3. Installs JS dependencies in `OBDScanner/`
+4. Builds an Android release APK via Gradle
+5. Creates a GitHub Release with the APK attached
+
+**Publishing a release:**
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+The APK will appear at [GitHub Releases](https://github.com/RaresEduard-Tudor/CarLogix/releases).
+
 ### Manual API Testing
 ```bash
 # Register

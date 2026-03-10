@@ -1,4 +1,4 @@
-// API service layer for CarLogix — replaces Firebase SDK calls
+// API service layer for CarLogix
 // Talks to the Spring Boot backend via REST
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';

@@ -1,3 +1,4 @@
+/* global __DEV__ */
 import { Platform } from 'react-native';
 
 // Android emulator uses 10.0.2.2 to reach host localhost

@@ -11,7 +11,6 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  useTheme
 } from '@mui/material';
 import {
   DirectionsCar,
@@ -32,7 +31,6 @@ const gradients = [
 
 const DashboardPage = React.memo(({ cars, maintenanceRecords, errorCodes }) => {
   const { formatCurrency, formatDistance, formatDate } = useSettings();
-  const theme = useTheme();
 
   const totalCars = cars.length;
   const totalMaintenanceRecords = maintenanceRecords.length;

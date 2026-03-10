@@ -1,6 +1,6 @@
 # CarLogix
 
-**CarLogix** is a car maintenance and diagnostics platform with a Spring Boot REST API backend, React web dashboard, OBD-II MCP server, and a React Native mobile scanner app.
+**CarLogix** is a full-stack car maintenance and diagnostics platform with a Spring Boot REST API, React web dashboard, OBD-II MCP server, and a React Native mobile scanner app.
 
 ## Architecture
 
@@ -18,7 +18,7 @@
 
 ┌─────────────────┐       ┌──────────────────────┐
 │  MCP Server     │──────▶│  Same SQLite DB      │
-│  (Python/stdio) │       │  (128 DTC codes)      │
+│  (Python/stdio) │       │  (128 DTC codes)     │
 └─────────────────┘       └──────────────────────┘
 
 ┌─────────────────┐
@@ -38,7 +38,8 @@
 | Auth | JWT (HS512, 24h expiry, BCrypt passwords) |
 | MCP Server | Python 3.13, MCP SDK 1.26, 5 tools |
 | Mobile | React Native 0.81, Expo SDK 54, Bluetooth Classic |
-| Infrastructure | Docker Compose, Nginx, GitHub Actions CI |
+| CI/CD | GitHub Actions (backend tests, frontend lint, Docker build, Android APK releases) |
+| Infrastructure | Docker Compose, Nginx |
 
 ## Quick Start
 
@@ -256,7 +257,9 @@ CarLogix/
 ├── docker-compose.yml            # Full stack Docker Compose
 ├── Dockerfile                    # Frontend production image
 ├── nginx.conf                    # SPA routing + API proxy
-├── .github/workflows/ci.yml     # CI pipeline (tests, lint, Docker build)
+├── .github/workflows/
+│   ├── ci.yml                    # CI pipeline (tests, lint, Docker build)
+│   └── android-release.yml       # Android APK build on tag push
 └── .env.example                  # Environment variable template
 ```
 
@@ -299,6 +302,14 @@ yarn expo run:android
 ### Pre-built APK
 
 Download from [GitHub Releases](https://github.com/RaresEduard-Tudor/CarLogix/releases).
+
+APKs are automatically built and published when a version tag is pushed:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+# → GitHub Actions builds the APK and creates a release
+```
 
 ## Commands
 

@@ -195,7 +195,7 @@ This mobile app complements the CarLogix web application:
 
 - **Web App**: Maintenance tracking, dashboard, cloud sync
 - **Mobile App**: Real OBD-II scanning, diagnostic codes
-- **Future**: Sync diagnostic data to web app via Firebase
+- **Future**: Sync diagnostic data to web app via REST API
 
 ## 📚 Resources
 
