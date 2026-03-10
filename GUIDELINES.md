@@ -132,7 +132,7 @@ src/
 
 - Backend: multi-stage Docker build (JDK for build, JRE for runtime)
 - Frontend: multi-stage Docker build (Node for build, Nginx for serving)
-- `obd2_codes.db` is mounted read-only into the API container at `/data/obd2_codes.db`
+- `backend/obd2_codes.db` is copied into the backend image at build time (`COPY obd2_codes.db /data/obd2_codes.db`). This allows deployment to platforms without persistent disk (e.g. Render free tier). To update DTC codes: rebuild the DB, copy to `backend/`, commit, and redeploy.
 
 ## MCP Server
 
@@ -165,6 +165,19 @@ python build_obd2_db.py
 
 Format: `("CODE", "Description", "Suggested fix text")`
 
+## Data Storage Conventions
+
+### Units
+- **Mileage is always stored in miles** in the database (both `vehicles.current_mileage` and `maintenance_records.mileage`).
+- The frontend normalizes user input to miles before saving: if `distanceUnit` is `kilometers`, divide by `1.60934` before the API call.
+- `formatDistance()` in `SettingsContext` converts miles → km for display when the user's setting is `kilometers`.
+
+### Currency
+- **Costs are always stored in USD** in the database.
+- The frontend normalizes user input to USD before saving: divide by the selected currency's exchange rate before the API call.
+- `formatCurrency()` in `SettingsContext` converts USD → local currency for display.
+- Exchange rates are hardcoded mock values — not live rates.
+
 ## Git Workflow
 
 ### Branch Naming
@@ -181,7 +194,7 @@ Format: `("CODE", "Description", "Suggested fix text")`
 - `.env` files (use `.env.example` as template)
 - `backend/target/` (Maven build output)
 - `.venv/` (Python virtual environment)
-- `obd2_codes.db` (generated file, rebuild with `build_obd2_db.py`)
+- `/obd2_codes.db` (root-level generated file — rebuild with `build_obd2_db.py`; note `backend/obd2_codes.db` **is** committed as it's bundled into the Docker image)
 - `node_modules/`
 - IDE-specific files (`.idea/`, `.vscode/` except `mcp.json` and `extensions.json`)
 

@@ -2,6 +2,14 @@
 
 **CarLogix** is a full-stack car maintenance and diagnostics platform with a Spring Boot REST API, React web dashboard, OBD-II MCP server, and a React Native mobile scanner app.
 
+## Live Deployments
+
+| Service | URL |
+|---------|-----|
+| Web App | https://carlogix-app.vercel.app |
+| Backend API | https://carlogix-w2y7.onrender.com |
+| Android APK | [GitHub Releases](https://github.com/RaresEduard-Tudor/CarLogix/releases) |
+
 ## Architecture
 
 ```
@@ -294,10 +302,12 @@ yarn expo run:android
 
 1. Plug ELM327 adapter into car's OBD-II port
 2. Turn on car ignition
-3. Open app, log in with your CarLogix account
+3. Open app, log in with your CarLogix account (same credentials as the web app)
 4. Select your vehicle
 5. Connect to Bluetooth adapter (default PIN: 1234)
 6. Scan for error codes
+
+The app connects to the production backend (`https://carlogix-w2y7.onrender.com`) in release builds, and to your local Docker backend in development.
 
 ### Pre-built APK
 
