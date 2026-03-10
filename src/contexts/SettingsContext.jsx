@@ -75,7 +75,7 @@ const defaultSettings = {
 };
 
 // Settings context provider component
-export const SettingsProvider = ({ children }) => {
+export const SettingsProvider = ({ children, currentUser = null }) => {
   const [settings, setSettings] = useState(defaultSettings);
 
   // Load settings from localStorage on mount
@@ -165,6 +165,7 @@ export const SettingsProvider = ({ children }) => {
   const value = {
     // Settings state
     settings,
+    currentUser,
     
     // Update functions
     updateSetting,

@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { onAuthChange } from './src/services/firebaseService';
+import { getStoredUser, logout } from './src/services/apiService';
 
 import LoginScreen from './src/screens/LoginScreen';
 import CarSelectionScreen from './src/screens/CarSelectionScreen';
@@ -17,17 +17,24 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Listen for auth state changes
-    const unsubscribe = onAuthChange((currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-      if (!currentUser) {
-        setSelectedCar(null);
-      }
-    });
-
-    return unsubscribe;
+    // Check for stored auth token on app start
+    getStoredUser()
+      .then((storedUser) => {
+        setUser(storedUser);
+      })
+      .catch(() => {
+        setUser(null);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
+
+  const handleLogout = async () => {
+    await logout();
+    setUser(null);
+    setSelectedCar(null);
+  };
 
   if (loading) {
     return (
@@ -58,7 +65,7 @@ export default function App() {
                   {...props}
                   user={user}
                   onCarSelected={(car) => setSelectedCar(car)}
-                  onLogout={() => setUser(null)}
+                  onLogout={handleLogout}
                 />
               )}
             </Stack.Screen>

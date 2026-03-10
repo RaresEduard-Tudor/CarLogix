@@ -42,7 +42,7 @@ import {
   Alarm,
   Download
 } from '@mui/icons-material';
-import { useSettings } from '../contexts/SettingsContext_Firebase';
+import { useSettings } from '../contexts/SettingsContext';
 import { serviceTypes } from '../data/mockData';
 
 const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenanceRecord, onUpdateMaintenanceRecord }) => {

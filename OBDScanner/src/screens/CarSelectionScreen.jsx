@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { getUserCars, signOut as firebaseSignOut } from '../services/firebaseService';
+import { getUserCars, logout } from '../services/apiService';
 
 export default function CarSelectionScreen({ user, onCarSelected, onLogout }) {
   const [cars, setCars] = useState([]);
@@ -17,20 +17,20 @@ export default function CarSelectionScreen({ user, onCarSelected, onLogout }) {
 
   const loadCars = async () => {
     setLoading(true);
-    const result = await getUserCars(user.uid);
-    setLoading(false);
-
-    if (result.success) {
-      setCars(result.cars);
-      if (result.cars.length === 0) {
+    try {
+      const carList = await getUserCars();
+      setCars(carList);
+      if (carList.length === 0) {
         Alert.alert(
           'No Cars Found',
           'Please add a car in the web app first before using the OBD scanner.',
           [{ text: 'OK' }]
         );
       }
-    } else {
-      Alert.alert('Error', result.error || 'Failed to load cars');
+    } catch (error) {
+      Alert.alert('Error', error.message || 'Failed to load cars');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -54,7 +54,7 @@ export default function CarSelectionScreen({ user, onCarSelected, onLogout }) {
           text: 'Sign Out',
           style: 'destructive',
           onPress: async () => {
-            await firebaseSignOut();
+            await logout();
             onLogout();
           },
         },

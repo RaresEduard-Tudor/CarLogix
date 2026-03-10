@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import BluetoothService from '../obd/bluetoothService';
 import OBDService from '../obd/obdService';
-import { saveErrorCodes } from '../services/firebaseService';
+import { saveDiagnostic } from '../services/apiService';
 
 export default function OBDScannerScreen({ user, selectedCar, onBackToCarSelection }) {
   const [devices, setDevices] = useState([]);
@@ -118,25 +118,21 @@ export default function OBDScannerScreen({ user, selectedCar, onBackToCarSelecti
     try {
       setIsSavingCodes(true);
       
-      const carName = `${selectedCar.year} ${selectedCar.brand} ${selectedCar.model}`;
-      const result = await saveErrorCodes(
-        user.uid,
-        selectedCar.id,
-        carName,
-        codes,
-        vehicleData.mileage || null
+      const mileage = vehicleData.mileage || null;
+      
+      // Save each error code as a separate diagnostic entry
+      await Promise.all(
+        codes.map((code) =>
+          saveDiagnostic(selectedCar.id, code.code || code, mileage)
+        )
       );
 
-      if (result.success) {
-        Alert.alert(
-          'Saved!',
-          'Error codes saved to your CarLogix account.\n\nView them in the web app under "Error Codes".'
-        );
-      } else {
-        Alert.alert('Save Failed', result.error || 'Failed to save error codes');
-      }
+      Alert.alert(
+        'Saved!',
+        'Error codes saved to your CarLogix account.\n\nView them in the web app under "Error Codes".'
+      );
     } catch (error) {
-      Alert.alert('Error', `Failed to save: ${error.message}`);
+      Alert.alert('Save Failed', error.message || 'Failed to save error codes');
     } finally {
       setIsSavingCodes(false);
     }

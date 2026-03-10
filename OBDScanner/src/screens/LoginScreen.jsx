@@ -10,7 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { signIn } from '../services/firebaseService';
+import { login } from '../services/apiService';
 
 export default function LoginScreen({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
@@ -24,13 +24,13 @@ export default function LoginScreen({ onLoginSuccess }) {
     }
 
     setLoading(true);
-    const result = await signIn(email, password);
-    setLoading(false);
-
-    if (result.success) {
-      onLoginSuccess(result.user);
-    } else {
-      Alert.alert('Login Failed', result.error || 'Please check your credentials');
+    try {
+      const user = await login(email, password);
+      onLoginSuccess(user);
+    } catch (error) {
+      Alert.alert('Login Failed', error.message || 'Please check your credentials');
+    } finally {
+      setLoading(false);
     }
   };
 

@@ -12,9 +12,26 @@ dist
 dist-ssr
 *.local
 
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# Backend build output
+backend/target/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Generated databases
+obd2_codes.db
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+!.vscode/mcp.json
 .idea
 .DS_Store
 *.suo

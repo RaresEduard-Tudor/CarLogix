@@ -33,11 +33,12 @@ import {
   DirectionsCar,
   Settings
 } from '@mui/icons-material';
-import { useSettings } from '../contexts/SettingsContext_Firebase';
+import { useSettings } from '../contexts/SettingsContext';
 
-const ProfilePage = React.memo(({ cars = [], maintenanceRecords = [], errorCodes = [] }) => {
+const ProfilePage = React.memo(({ cars = [], maintenanceRecords = [], errorCodes = [], onUpdateProfile, onChangePassword }) => {
   const { currentUser } = useSettings();
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -51,24 +52,36 @@ const ProfilePage = React.memo(({ cars = [], maintenanceRecords = [], errorCodes
   
   // Calculate days active (days since account creation)
   const daysActive = React.useMemo(() => {
-    if (!currentUser?.metadata?.creationTime) return 0;
-    const creationDate = new Date(currentUser.metadata.creationTime);
+    const creationTime = currentUser?.createdAt || currentUser?.metadata?.creationTime;
+    if (!creationTime) return 0;
+    const creationDate = new Date(creationTime);
     const today = new Date();
     const diffTime = Math.abs(today - creationDate);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
-  }, [currentUser?.metadata?.creationTime]);
+  }, [currentUser]);
 
 
 
-  const handlePasswordChange = () => {
-    // TODO: Implement password change logic
-    setShowPasswordDialog(false);
-    setPasswordData({
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    });
+  const handlePasswordChange = async () => {
+    setPasswordError('');
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError('New passwords do not match');
+      return;
+    }
+    if (passwordData.newPassword.length < 8) {
+      setPasswordError('New password must be at least 8 characters');
+      return;
+    }
+    if (onChangePassword) {
+      const result = await onChangePassword(passwordData.currentPassword, passwordData.newPassword);
+      if (result.success) {
+        setShowPasswordDialog(false);
+        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      } else {
+        setPasswordError(result.error || 'Failed to change password');
+      }
+    }
   };
 
   const getAvatarInitials = () => {
@@ -169,7 +182,7 @@ const ProfilePage = React.memo(({ cars = [], maintenanceRecords = [], errorCodes
                   </ListItemIcon>
                   <ListItemText
                     primary="Member Since"
-                    secondary={formatDate(currentUser.metadata?.creationTime)}
+                    secondary={formatDate(currentUser.createdAt || currentUser.metadata?.creationTime)}
                   />
                 </ListItem>
                 <ListItem>
@@ -287,6 +300,9 @@ const ProfilePage = React.memo(({ cars = [], maintenanceRecords = [], errorCodes
       <Dialog open={showPasswordDialog} onClose={() => setShowPasswordDialog(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Change Password</DialogTitle>
         <DialogContent>
+          {passwordError && (
+            <Alert severity="error" sx={{ mb: 2 }}>{passwordError}</Alert>
+          )}
           <TextField
             autoFocus
             margin="dense"

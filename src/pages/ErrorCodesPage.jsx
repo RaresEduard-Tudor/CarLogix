@@ -45,9 +45,9 @@ import {
   ExpandLess,
   DirectionsCar
 } from '@mui/icons-material';
-import { useSettings } from '../contexts/SettingsContext_Firebase';
+import { useSettings } from '../contexts/SettingsContext';
 
-const ErrorCodesPage = React.memo(({ cars, errorCodes, onUpdateErrorCode }) => {
+const ErrorCodesPage = React.memo(({ cars, errorCodes, onClearError }) => {
   const { formatDate, formatDistance } = useSettings();
   const [showScanHistory, setShowScanHistory] = useState({});
 
@@ -60,7 +60,7 @@ const ErrorCodesPage = React.memo(({ cars, errorCodes, onUpdateErrorCode }) => {
 
   const handleMarkResolved = async (scanId) => {
     try {
-      await onUpdateErrorCode(scanId, { status: 'resolved' });
+      await onClearError(scanId);
     } catch (error) {
       console.error('Error marking scan as resolved:', error);
     }

@@ -33,7 +33,7 @@ import {
   CalendarToday,
   Speed
 } from '@mui/icons-material';
-import { useSettings } from '../contexts/SettingsContext_Firebase';
+import { useSettings } from '../contexts/SettingsContext';
 import { getBrandNames, getModelsForBrand, carColors } from '../data/carData';
 
 const CarsPage = React.memo(({ cars, onAddCar, onUpdateCar }) => {

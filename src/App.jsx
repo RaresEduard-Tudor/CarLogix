@@ -1,7 +1,7 @@
 import React, { useState, Suspense } from 'react';
-import { useFirebaseCarLogix } from './hooks/useFirebaseCarLogix';
+import { useCarLogixApi } from './hooks/useCarLogixApi';
 import { ThemeContextProvider } from './contexts/ThemeContext';
-import { SettingsProvider } from './contexts/SettingsContext_Firebase';
+import { SettingsProvider } from './contexts/SettingsContext';
 import LoginPage from './pages/LoginPage';
 import DashboardLayout from './components/DashboardLayout';
 import { CircularProgress, Box } from '@mui/material';
@@ -29,9 +29,13 @@ function App() {
     addCar,
     updateCar,
     addMaintenanceRecord,
+    updateMaintenanceRecord,
+    deleteMaintenanceRecord,
     clearErrorCode,
-    scanForErrors
-  } = useFirebaseCarLogix();
+    scanForErrors,
+    updateProfile,
+    changePassword
+  } = useCarLogixApi();
 
   // Show login page if not logged in
   if (!isLoggedIn) {
@@ -79,6 +83,8 @@ function App() {
                   cars={cars}
                   maintenanceRecords={maintenanceRecords}
                   onAddMaintenanceRecord={addMaintenanceRecord}
+                  onUpdateMaintenanceRecord={updateMaintenanceRecord}
+                  onDeleteMaintenanceRecord={deleteMaintenanceRecord}
                 />
               );
             case 'errors':
@@ -98,6 +104,8 @@ function App() {
                   cars={cars}
                   maintenanceRecords={maintenanceRecords}
                   errorCodes={errorCodes}
+                  onUpdateProfile={updateProfile}
+                  onChangePassword={changePassword}
                 />
               );
             default:
@@ -116,7 +124,7 @@ function App() {
 
   return (
     <ThemeContextProvider>
-      <SettingsProvider>
+      <SettingsProvider currentUser={user}>
         <DashboardLayout
           currentPage={currentPage}
           onPageChange={setCurrentPage}
