@@ -26,11 +26,13 @@ public class MaintenanceService {
         this.vehicleRepository = vehicleRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<MaintenanceRecordResponse> getUserMaintenanceRecords(Long userId) {
         return maintenanceRepository.findAllByUserId(userId)
                 .stream().map(MaintenanceRecordResponse::fromEntity).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<MaintenanceRecordResponse> getVehicleMaintenanceRecords(Long vehicleId, Long userId) {
         vehicleRepository.findByIdAndUserId(vehicleId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found"));

@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface DiagnosticLogRepository extends JpaRepository<DiagnosticLog, Long> {
 
-    @Query("SELECT d FROM DiagnosticLog d JOIN d.vehicle v WHERE v.user.id = :userId ORDER BY d.createdAt DESC")
+    @Query("SELECT d FROM DiagnosticLog d JOIN FETCH d.vehicle v WHERE v.user.id = :userId ORDER BY d.createdAt DESC")
     List<DiagnosticLog> findAllByUserId(@Param("userId") Long userId);
 
     List<DiagnosticLog> findByVehicleIdOrderByCreatedAtDesc(Long vehicleId);

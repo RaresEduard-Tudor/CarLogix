@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface MaintenanceRecordRepository extends JpaRepository<MaintenanceRecord, Long> {
 
-    @Query("SELECT m FROM MaintenanceRecord m JOIN m.vehicle v WHERE v.user.id = :userId ORDER BY m.serviceDate DESC")
+    @Query("SELECT m FROM MaintenanceRecord m JOIN FETCH m.vehicle v WHERE v.user.id = :userId ORDER BY m.serviceDate DESC")
     List<MaintenanceRecord> findAllByUserId(@Param("userId") Long userId);
 
     List<MaintenanceRecord> findByVehicleIdOrderByServiceDateDesc(Long vehicleId);

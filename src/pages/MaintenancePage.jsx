@@ -42,7 +42,7 @@ import {
   Alarm,
   Download
 } from '@mui/icons-material';
-import { useSettings } from '../contexts/SettingsContext';
+import { useSettings, currencies } from '../contexts/SettingsContext';
 import { serviceTypes } from '../data/carData';
 
 const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenanceRecord }) => {
@@ -100,11 +100,25 @@ const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenance
   };
 
   const handleSubmit = () => {
+    // Normalize to base units (miles, USD) so formatDistance/formatCurrency display correctly
+    const rawMileage = formData.mileage ? parseInt(formData.mileage) : undefined;
+    const mileageInMiles = rawMileage !== undefined && settings.distanceUnit === 'kilometers'
+      ? Math.round(rawMileage / 1.60934)
+      : rawMileage;
+
+    const rawCost = formData.cost ? parseFloat(formData.cost) : 0;
+    const costInUSD = rawCost / (currencies[settings.currency]?.rate || 1);
+
+    const rawReminder = formData.reminderMileageInterval ? parseInt(formData.reminderMileageInterval) : null;
+    const reminderInMiles = rawReminder !== null && settings.distanceUnit === 'kilometers'
+      ? Math.round(rawReminder / 1.60934)
+      : rawReminder;
+
     const recordData = {
       ...formData,
-      mileage: formData.mileage ? parseInt(formData.mileage) : undefined,
-      cost: formData.cost ? parseFloat(formData.cost) : 0,
-      reminderMileageInterval: formData.reminderMileageInterval ? parseInt(formData.reminderMileageInterval) : null,
+      mileage: mileageInMiles,
+      cost: costInUSD,
+      reminderMileageInterval: reminderInMiles,
       reminderTimeInterval: formData.reminderTimeInterval ? parseInt(formData.reminderTimeInterval) : null
     };
 
