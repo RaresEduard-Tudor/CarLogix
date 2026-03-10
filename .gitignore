@@ -39,3 +39,4 @@ obd2_codes.db
 *.njsproj
 *.sln
 *.sw?
+.env
