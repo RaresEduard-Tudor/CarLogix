@@ -35,7 +35,7 @@ import {
 } from '@mui/icons-material';
 import { useSettings } from '../contexts/SettingsContext';
 
-const ProfilePage = React.memo(({ cars = [], maintenanceRecords = [], errorCodes = [], onUpdateProfile, onChangePassword }) => {
+const ProfilePage = React.memo(({ cars = [], maintenanceRecords = [], errorCodes = [], onChangePassword }) => {
   const { currentUser } = useSettings();
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [passwordError, setPasswordError] = useState('');

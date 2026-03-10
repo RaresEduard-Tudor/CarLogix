@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const SettingsContext = createContext();
 
 // Custom hook to use settings context
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSettings = () => {
   const context = useContext(SettingsContext);
   if (!context) {
@@ -13,6 +14,7 @@ export const useSettings = () => {
 };
 
 // Available currencies with their symbols and exchange rates (mock)
+// eslint-disable-next-line react-refresh/only-export-components
 export const currencies = {
   USD: { symbol: '$', name: 'US Dollar', rate: 1.0 },
   EUR: { symbol: '€', name: 'Euro', rate: 0.85 },
@@ -27,12 +29,14 @@ export const currencies = {
 };
 
 // Available distance units
+// eslint-disable-next-line react-refresh/only-export-components
 export const distanceUnits = {
   miles: { name: 'Miles', abbr: 'mi', toMiles: 1.0 },
   kilometers: { name: 'Kilometers', abbr: 'km', toMiles: 0.621371 }
 };
 
 // Available date formats
+// eslint-disable-next-line react-refresh/only-export-components
 export const dateFormats = {
   'MM/DD/YYYY': { 
     name: 'US Format', 

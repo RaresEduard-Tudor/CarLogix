@@ -14,7 +14,7 @@ import BluetoothService from '../obd/bluetoothService';
 import OBDService from '../obd/obdService';
 import { saveDiagnostic } from '../services/apiService';
 
-export default function OBDScannerScreen({ user, selectedCar, onBackToCarSelection }) {
+export default function OBDScannerScreen({ selectedCar, onBackToCarSelection }) {
   const [devices, setDevices] = useState([]);
   const [isScanning, setIsScanning] = useState(false);
   const [connectedDevice, setConnectedDevice] = useState(null);
@@ -23,7 +23,7 @@ export default function OBDScannerScreen({ user, selectedCar, onBackToCarSelecti
   const [isReadingCodes, setIsReadingCodes] = useState(false);
   const [vehicleData, setVehicleData] = useState({ speed: null, rpm: null });
   const [showDeviceModal, setShowDeviceModal] = useState(false);
-  const [isSavingCodes, setIsSavingCodes] = useState(false);
+  const [_isSavingCodes, setIsSavingCodes] = useState(false);
 
   useEffect(() => {
     return () => {

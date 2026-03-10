@@ -22,7 +22,6 @@ function App() {
     maintenanceRecords,
     errorCodes,
     isLoggedIn,
-    authLoading,
     register,
     login,
     logout,

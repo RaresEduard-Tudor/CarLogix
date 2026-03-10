@@ -29,7 +29,7 @@ export const useCarLogixApi = () => {
     } else {
       setAuthLoading(false);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadUserData = useCallback(async () => {
     setLoading(true);

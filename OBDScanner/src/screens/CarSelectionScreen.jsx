@@ -36,7 +36,6 @@ export default function CarSelectionScreen({ user, onCarSelected, onLogout }) {
 
   useEffect(() => {
     loadCars();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCarSelect = (car) => {

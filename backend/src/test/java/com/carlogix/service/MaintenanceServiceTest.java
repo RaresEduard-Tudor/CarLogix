@@ -79,7 +79,7 @@ class MaintenanceServiceTest {
             return r;
         });
 
-        MaintenanceRecordResponse response = maintenanceService.createMaintenanceRecord(request, user);
+        MaintenanceRecordResponse response = maintenanceService.createMaintenanceRecord(request, 1L);
 
         assertNotNull(response);
         assertEquals("Oil Change", response.getServiceType());
@@ -96,7 +96,7 @@ class MaintenanceServiceTest {
         when(vehicleRepository.findByIdAndUserId(99L, 1L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> maintenanceService.createMaintenanceRecord(request, user));
+                () -> maintenanceService.createMaintenanceRecord(request, 1L));
     }
 
     @Test

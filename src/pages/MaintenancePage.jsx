@@ -45,7 +45,7 @@ import {
 import { useSettings } from '../contexts/SettingsContext';
 import { serviceTypes } from '../data/carData';
 
-const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenanceRecord, onUpdateMaintenanceRecord }) => {
+const MaintenancePage = React.memo(({ cars, maintenanceRecords, onAddMaintenanceRecord }) => {
   const { formatDate, formatCurrency, formatDistance, settings, distanceUnits } = useSettings();
   const [open, setOpen] = useState(false);
   const [selectedCarId, setSelectedCarId] = useState('');
