@@ -41,7 +41,7 @@ export const useCarLogixApi = () => {
         apiService.getProfile(),
       ]);
       // Map backend field names to frontend expectations
-      setCars(vehiclesData.map(v => ({ ...v, brand: v.make })));
+      setCars(vehiclesData.map(v => ({ ...v, brand: v.make, mileage: v.currentMileage ?? null })));
       setErrorCodes(diagnosticsData);
       setMaintenanceRecords(maintenanceData.map(r => ({ ...r, carId: r.vehicleId })));
       setUser(profileData);
