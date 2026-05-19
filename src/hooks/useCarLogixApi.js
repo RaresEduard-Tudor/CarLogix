@@ -107,7 +107,7 @@ export const useCarLogixApi = () => {
         currentMileage: carData.currentMileage || carData.mileage,
         licensePlate: carData.licensePlate,
       });
-      setCars(prev => [{ ...vehicle, brand: vehicle.make }, ...prev]);
+      setCars(prev => [{ ...vehicle, brand: vehicle.make, mileage: vehicle.currentMileage ?? null }, ...prev]);
       return { success: true, id: vehicle.id };
     } catch (error) {
       return { success: false, error: error.message };
@@ -128,7 +128,7 @@ export const useCarLogixApi = () => {
         currentMileage: carData.currentMileage || carData.mileage,
         licensePlate: carData.licensePlate,
       });
-      setCars(prev => prev.map(c => (c.id === carId ? { ...vehicle, brand: vehicle.make } : c)));
+      setCars(prev => prev.map(c => (c.id === carId ? { ...vehicle, brand: vehicle.make, mileage: vehicle.currentMileage ?? null } : c)));
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };

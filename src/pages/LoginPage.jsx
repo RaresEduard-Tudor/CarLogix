@@ -126,6 +126,17 @@ const LoginPage = React.memo(({ onLogin, onRegister }) => {
             backgroundColor: 'rgba(255,255,255,0.95)',
             border: '1px solid rgba(255,255,255,0.2)',
             borderRadius: 4,
+            color: '#1e293b',
+            '& .MuiInputBase-input': { color: '#1e293b' },
+            '& .MuiInputLabel-root': { color: '#64748b' },
+            '& .MuiInputLabel-root.Mui-focused': { color: '#4f46e5' },
+            '& .MuiOutlinedInput-notchedOutline': { borderColor: '#cbd5e1' },
+            '& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#94a3b8' },
+            '& .MuiFormHelperText-root': { color: '#64748b' },
+            '& .MuiTab-root': { color: '#64748b' },
+            '& .MuiTab-root.Mui-selected': { color: '#4f46e5' },
+            '& .MuiInputAdornment-root .MuiSvgIcon-root': { color: '#64748b' },
+            '& .MuiIconButton-root': { color: '#64748b' },
           }}
         >
           {/* Logo */}
@@ -140,10 +151,10 @@ const LoginPage = React.memo(({ onLogin, onRegister }) => {
             >
               <DirectionsCar sx={{ fontSize: 36, color: '#fff' }} />
             </Box>
-            <Typography variant="h4" fontWeight={700} color="text.primary">
+            <Typography variant="h4" fontWeight={700} sx={{ color: '#1e293b' }}>
               CarLogix
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            <Typography variant="body2" sx={{ mt: 0.5, color: '#64748b' }}>
               Smart vehicle maintenance tracker
             </Typography>
           </Box>

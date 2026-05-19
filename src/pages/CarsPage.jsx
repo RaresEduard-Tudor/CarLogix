@@ -26,7 +26,8 @@ import {
   DirectionsCar,
 } from '@mui/icons-material';
 import { useSettings } from '../contexts/SettingsContext';
-import { getBrandNames, getModelsForBrand, carColors } from '../data/carData';
+import { getBrandNames, getModelsForBrand, getColorsForBrand } from '../data/carData';
+import ListSubheader from '@mui/material/ListSubheader';
 
 const CarsPage = React.memo(({ cars, onAddCar, onUpdateCar, onDeleteCar }) => {
   const { formatDate, formatDistance, settings, distanceUnits } = useSettings();
@@ -46,12 +47,16 @@ const CarsPage = React.memo(({ cars, onAddCar, onUpdateCar, onDeleteCar }) => {
   const handleOpen = (car = null) => {
     if (car) {
       setEditingCar(car);
+      const storedMiles = car.mileage ?? car.currentMileage;
+      const displayMileage = storedMiles != null
+        ? (settings.distanceUnit === 'kilometers' ? Math.round(storedMiles * 1.60934) : storedMiles).toString()
+        : '';
       setFormData({
         brand: car.brand,
         model: car.model,
         year: car.year.toString(),
         vin: car.vin,
-        mileage: car.mileage?.toString() || '',
+        mileage: displayMileage,
         color: car.color || ''
       });
       // Set available models for the car's brand
@@ -95,10 +100,14 @@ const CarsPage = React.memo(({ cars, onAddCar, onUpdateCar, onDeleteCar }) => {
   };
 
   const handleSubmit = () => {
+    const rawMileage = formData.mileage ? parseInt(formData.mileage) : undefined;
+    const mileageInMiles = rawMileage !== undefined && settings.distanceUnit === 'kilometers'
+      ? Math.round(rawMileage / 1.60934)
+      : rawMileage;
     const carData = {
       ...formData,
       year: parseInt(formData.year),
-      mileage: formData.mileage ? parseInt(formData.mileage) : undefined
+      mileage: mileageInMiles
     };
 
     if (editingCar) {
@@ -342,11 +351,29 @@ const CarsPage = React.memo(({ cars, onAddCar, onUpdateCar, onDeleteCar }) => {
                   <MenuItem value="">
                     <em>Select a color</em>
                   </MenuItem>
-                  {carColors.map((color) => (
-                    <MenuItem key={color} value={color}>
-                      {color}
-                    </MenuItem>
-                  ))}
+                  {(() => {
+                    const { branded, generic } = getColorsForBrand(formData.brand);
+                    const items = [];
+                    if (branded.length > 0) {
+                      items.push(
+                        <ListSubheader key="branded-header">{formData.brand} colors</ListSubheader>
+                      );
+                      branded.forEach((color) => {
+                        items.push(
+                          <MenuItem key={`b-${color}`} value={color}>{color}</MenuItem>
+                        );
+                      });
+                      items.push(
+                        <ListSubheader key="generic-header">Generic colors</ListSubheader>
+                      );
+                    }
+                    generic.forEach((color) => {
+                      items.push(
+                        <MenuItem key={`g-${color}`} value={color}>{color}</MenuItem>
+                      );
+                    });
+                    return items;
+                  })()}
                 </Select>
               </FormControl>
             </Grid>
