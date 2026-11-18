@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: carlogix
       POSTGRES_USER: carlogix
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-carlogix}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
@@ -33,8 +33,8 @@ services:
       DB_PORT: 5432
       DB_NAME: carlogix
       DB_USERNAME: carlogix
-      DB_PASSWORD: ${DB_PASSWORD:-carlogix}
-      JWT_SECRET: ${JWT_SECRET:-change-me-in-production-this-must-be-at-least-256-bits-long-for-hs256}
+      DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
       CORS_ORIGINS: http://localhost:3000,http://localhost:5173
       OBD2_DB_PATH: /data/obd2_codes.db
     volumes:
