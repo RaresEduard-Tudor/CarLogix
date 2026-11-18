@@ -8,11 +8,9 @@ services:
       POSTGRES_USER: carlogix
       POSTGRES_PASSWORD: ${DB_PASSWORD:-carlogix}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/src/main/resources/db/migration/V1__initial_schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - ./backend/src/main/resources/db/migration/V2__maintenance_records.sql:/docker-entrypoint-initdb.d/02-maintenance.sql
     networks:
       - carlogix-network
     healthcheck:
@@ -20,6 +18,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   # Spring Boot Backend
   carlogix-api:
@@ -28,7 +27,7 @@ services:
       dockerfile: Dockerfile
     container_name: carlogix-api
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
@@ -51,6 +50,7 @@ services:
       timeout: 3s
       retries: 3
       start_period: 30s
+    restart: unless-stopped
 
   # CarLogix Web Application
   carlogix-web:
@@ -61,18 +61,19 @@ services:
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
     container_name: carlogix-web
     ports:
-      - "3000:80"
+      - "127.0.0.1:3301:80"
     depends_on:
       carlogix-api:
         condition: service_healthy
     networks:
       - carlogix-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:80/health"]
       interval: 30s
       timeout: 3s
       retries: 3
       start_period: 5s
+    restart: unless-stopped
 
   # Development frontend (hot reload)
   carlogix-dev:
@@ -94,6 +95,7 @@ services:
       - carlogix-network
     profiles:
       - dev
+    restart: unless-stopped
 
 volumes:
   postgres_data:
